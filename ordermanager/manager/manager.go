@@ -385,10 +385,6 @@ func (om *OrderManagerImpl) saveRingMinedEvent(event *types.RingMinedEvent) erro
 	return fmt.Errorf("order manager,handle ringmined event,tx:%s ringhash:%s already exist", event.TxHash.Hex(), event.Ringhash.Hex())
 }
 
-func (om *OrderManagerImpl) saveFillEvent(event *types.OrderFilledEvent) error {
-	return nil
-}
-
 func (om *OrderManagerImpl) saveCancelEvent(event *types.OrderCancelledEvent) error {
 	var (
 		model dao.CancelEvent
