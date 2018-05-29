@@ -466,6 +466,14 @@ func (s *RdsService) UpdateOrderWhileCancel(hash common.Hash, status types.Order
 	return s.Db.Model(&Order{}).Where("order_hash = ?", hash.Hex()).Update(items).Error
 }
 
+func (s *RdsService) UpdateOrderStatus(hash common.Hash, status types.OrderStatus, blockNumber *big.Int) error {
+	items := map[string]interface{}{
+		"status":        uint8(status),
+		"updated_block": blockNumber.Int64(),
+	}
+	return s.Db.Model(&Order{}).Where("order_hash = ?", hash.Hex()).Update(items).Error
+}
+
 func (s *RdsService) UpdateOrderWhileRollbackCutoff(orderhash common.Hash, status types.OrderStatus, blockNumber *big.Int) error {
 	items := map[string]interface{}{
 		"status":        uint8(status),
