@@ -38,7 +38,7 @@ const (
 	ORDER_EXPIRE     OrderStatus = 6
 	ORDER_PENDING    OrderStatus = 7
 	ORDER_CANCELLING OrderStatus = 8
-
+	ORDER_CUTOFFING  OrderStatus = 9
 	//ORDER_BALANCE_INSUFFICIENT   OrderStatus = 9
 	//ORDER_ALLOWANCE_INSUFFICIENT OrderStatus = 10
 )
