@@ -3,10 +3,10 @@ package filter
 import (
 	"strconv"
 
-	motan "github.com/Loopring/motan-go/core"
-	"github.com/Loopring/motan-go/log"
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/pkg/errors"
+	motan "github.com/Loopring/motan-go/core"
+	"github.com/Loopring/motan-go/log"
 )
 
 const (

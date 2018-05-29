@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Loopring/motan-go/log"
 	"github.com/rcrowley/go-metrics"
+	"github.com/Loopring/motan-go/log"
 )
 
 const (

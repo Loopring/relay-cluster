@@ -6,7 +6,7 @@ import (
 
 const (
 	Simple = "simple"
-	Gob    = "gob"
+	Gob = "gob"
 )
 
 func RegistDefaultSerializations(extFactory motan.ExtentionFactory) {

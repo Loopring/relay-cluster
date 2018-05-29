@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
+	metric "github.com/rcrowley/go-metrics"
 	motan "github.com/Loopring/motan-go/core"
 	"github.com/Loopring/motan-go/log"
-	metric "github.com/rcrowley/go-metrics"
 )
 
 const (

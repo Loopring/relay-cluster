@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"github.com/Loopring/relay-lib/eventemitter"
 	"github.com/Loopring/relay-lib/kafka"
+	"github.com/Loopring/relay-lib/log"
 	"github.com/Loopring/relay-lib/types"
 )
 
@@ -60,7 +61,7 @@ func (s *ExtractorService) handle(input interface{}) error {
 	}
 
 	// todo: delete after test
-	fmt.Printf("extractor, consume topic:%s ,data:%s\n", src.Topic, src.Data)
+	log.Debugf("extractor, consume topic:%s ,data:%s", src.Topic, src.Data)
 
 	eventemitter.Emit(src.Topic, event)
 

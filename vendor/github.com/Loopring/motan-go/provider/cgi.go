@@ -5,9 +5,9 @@ package provider
 import (
 	"errors"
 	"fmt"
+	cgi "github.com/beberlei/fastcgi-serve/fcgiclient"
 	motan "github.com/Loopring/motan-go/core"
 	"github.com/Loopring/motan-go/log"
-	cgi "github.com/beberlei/fastcgi-serve/fcgiclient"
 	"strconv"
 	"strings"
 	"time"

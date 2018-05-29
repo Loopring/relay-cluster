@@ -124,10 +124,11 @@ func (om *OrderManagerImpl) handleWarning(input eventemitter.EventData) error {
 func (om *OrderManagerImpl) handleSubmitRingMethod(input eventemitter.EventData) error {
 	event := input.(*types.SubmitRingMethodEvent)
 
-	if event.Status != types.TX_STATUS_FAILED && event.Status != types.TX_STATUS_PENDING {
+	if event.Status != types.TX_STATUS_FAILED {
 		return nil
 	}
 
+<<<<<<< HEAD
 	if err := om.saveSubmitRingEvent(event); err != nil {
 		log.Errorf(err.Error())
 	}
@@ -141,6 +142,20 @@ func (om *OrderManagerImpl) handleSubmitRingMethod(input eventemitter.EventData)
 	}
 
 	return nil
+=======
+	var (
+		model = &dao.RingMinedEvent{}
+		err   error
+	)
+
+	if model, err = om.rds.FindRingMined(event.TxHash.Hex()); err == nil {
+		log.Debugf("order manager,handle submitRing method,tx %s has already exist", event.TxHash.Hex())
+	}
+
+	log.Debugf("order manager,handle submitRing method,tx:%s status:%s inserted", event.TxHash.Hex(), types.StatusStr(event.Status))
+	model.FromSubmitRingMethod(event)
+	return om.rds.Add(model)
+>>>>>>> ac34f6ac385d6a8be44ebc12ab97abb8b8fd0386
 }
 
 // 所有来自gateway的订单都是新订单
@@ -170,11 +185,23 @@ func (om *OrderManagerImpl) handleRingMined(input eventemitter.EventData) error 
 		return nil
 	}
 
+<<<<<<< HEAD
 	if err := om.saveRingMinedEvent(event); err != nil {
 		log.Errorf(err.Error())
+=======
+	var (
+		model = &dao.RingMinedEvent{}
+		err   error
+	)
+
+	if model, err = om.rds.FindRingMined(event.TxHash.Hex()); err == nil {
+		log.Errorf("order manager,handle ringmined event,tx:%s ringhash:%s err:%s", event.TxHash.Hex(), event.Ringhash.Hex(), err.Error())
+>>>>>>> ac34f6ac385d6a8be44ebc12ab97abb8b8fd0386
 	}
 
-	return nil
+	log.Debugf("order manager,handle ringmined event,tx:%s, ringhash:%s inserted", event.TxHash.Hex(), event.Ringhash.Hex())
+	model.ConvertDown(event)
+	return om.rds.Add(model)
 }
 
 func (om *OrderManagerImpl) handleOrderFilled(input eventemitter.EventData) error {

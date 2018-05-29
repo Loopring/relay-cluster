@@ -112,7 +112,7 @@ func (accountManager *AccountManager) Start() {
 
 func (a *AccountManager) handleTokenTransfer(input eventemitter.EventData) (err error) {
 	event := input.(*types.TransferEvent)
-
+	log.Debugf("transfer,owner:%s,to:%s, token:%s", event.Receiver.Hex(), event.To.Hex(), event.Protocol.Hex())
 	if event == nil || event.Status != types.TX_STATUS_SUCCESS {
 		log.Info("received wrong status event, drop it")
 		return nil
@@ -138,7 +138,7 @@ func (a *AccountManager) handleTokenTransfer(input eventemitter.EventData) (err 
 
 func (a *AccountManager) handleApprove(input eventemitter.EventData) error {
 	event := input.(*types.ApprovalEvent)
-	log.Debugf("received approval event, %s, %s", event.Protocol.Hex(), event.Owner.Hex())
+	log.Debugf("approve,owner:%s, token:%s", event.Owner.Hex(), event.Protocol.Hex())
 	if event == nil || event.Status != types.TX_STATUS_SUCCESS {
 		log.Info("received wrong status event, drop it")
 		return nil
@@ -157,6 +157,8 @@ func (a *AccountManager) handleApprove(input eventemitter.EventData) error {
 
 func (a *AccountManager) handleWethDeposit(input eventemitter.EventData) (err error) {
 	event := input.(*types.WethDepositEvent)
+	log.Debugf("wethDeposit,owner:%s", event.To.Hex())
+
 	if event == nil || event.Status != types.TX_STATUS_SUCCESS {
 		log.Info("received wrong status event, drop it")
 		return nil
@@ -171,6 +173,7 @@ func (a *AccountManager) handleWethDeposit(input eventemitter.EventData) (err er
 
 func (a *AccountManager) handleWethWithdrawal(input eventemitter.EventData) (err error) {
 	event := input.(*types.WethWithdrawalEvent)
+	log.Debugf("wethWithdrawal owner:%s", event.Src.Hex())
 	if event == nil || event.Status != types.TX_STATUS_SUCCESS {
 		log.Info("received wrong status event, drop it")
 		return nil
@@ -227,6 +230,7 @@ func (a *AccountManager) handleBlockNew(input eventemitter.EventData) error {
 
 func (a *AccountManager) handleEthTransfer(input eventemitter.EventData) error {
 	event := input.(*types.EthTransferEvent)
+	log.Debugf("transfer owner:%s, to:%s", event.From.Hex(), event.To.Hex())
 	block := &ChangedOfBlock{}
 	block.cachedDuration = new(big.Int).Set(a.cachedBlockCount)
 	block.currentBlockNumber = new(big.Int).Set(event.BlockNumber)

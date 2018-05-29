@@ -6,6 +6,8 @@ import (
 
 	motan "github.com/Loopring/motan-go/core"
 	"github.com/Loopring/motan-go/log"
+	"github.com/Loopring/relay-lib/cloudwatch"
+	"time"
 )
 
 // ext name
@@ -83,7 +85,8 @@ func (d *DefaultProvider) IsAvailable() bool {
 func (d *DefaultProvider) Destroy() {}
 
 func (d *DefaultProvider) Call(request motan.Request) (res motan.Response) {
-	m, exit := d.methods[motan.FirstUpper(request.GetMethod())]
+	methodName := motan.FirstUpper(request.GetMethod())
+	m, exit := d.methods[methodName]
 	if !exit {
 		vlog.Errorf("mehtod not found in provider. %s\n", motan.GetReqInfo(request))
 		return motan.BuildExceptionResponse(request.GetRequestID(), &motan.Exception{ErrCode: 500, ErrMsg: "mehtod " + request.GetMethod() + " is not found in provider.", ErrType: motan.ServiceException})
@@ -115,7 +118,11 @@ func (d *DefaultProvider) Call(request motan.Request) (res motan.Response) {
 	for _, arg := range request.GetArguments() {
 		vs = append(vs, reflect.ValueOf(arg))
 	}
+	startTime := time.Now().UnixNano()
 	ret := m.Call(vs)
+	if cloudwatch.IsValid() {
+		cloudwatch.PutResponseTimeMetric(methodName, float64((time.Now().UnixNano() - startTime) / 1000))
+	}
 	mres := &motan.MotanResponse{RequestID: request.GetRequestID()}
 	if len(ret) > 0 { // only use first return value.
 		mres.Value = ret[0].Interface()

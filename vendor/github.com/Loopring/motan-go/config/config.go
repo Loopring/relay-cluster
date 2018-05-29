@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/Loopring/motan-go/log"
 	"github.com/mitchellh/mapstructure"
+	"github.com/Loopring/motan-go/log"
 	"gopkg.in/yaml.v2"
 	"regexp"
 )

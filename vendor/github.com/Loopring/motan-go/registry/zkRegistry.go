@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/samuel/go-zookeeper/zk"
 	cluster "github.com/Loopring/motan-go/cluster"
 	motan "github.com/Loopring/motan-go/core"
 	"github.com/Loopring/motan-go/log"
-	"github.com/samuel/go-zookeeper/zk"
 )
 
 const (
@@ -48,7 +48,7 @@ func (z *ZkRegistry) Initialize() {
 	z.timeout = time.Duration(z.url.GetPositiveIntValue(motan.TimeOutKey, DefaultTimeout)) * time.Millisecond
 	var addrs []string
 	if z.url.Host != "" {
-		addrs = []string{z.url.GetAddressStr()}
+		addrs = z.url.CompositeAddresses()
 	} else {
 		addrs = strings.Split(z.url.GetParam(motan.AddressKey, ""), ",")
 	}
@@ -59,7 +59,8 @@ func (z *ZkRegistry) Initialize() {
 	}
 	z.subscribeMap = make(map[string]map[string]motan.NotifyListener)
 	z.nodeRs = make(map[string]ServiceNode)
-	z.StartSnapshot(GetSanpshotConf())
+	//TODO enable snapshot zk again
+	//z.StartSnapshot(GetSanpshotConf())
 }
 
 func ToGroupPath(url *motan.URL) string {

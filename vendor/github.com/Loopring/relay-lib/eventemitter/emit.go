@@ -19,7 +19,7 @@
 package eventemitter
 
 import (
-	"fmt"
+	"github.com/Loopring/relay-lib/log"
 	"sync"
 )
 
@@ -133,7 +133,7 @@ func Emit(topic string, eventData EventData) {
 					wg.Add(-1)
 				}()
 				if err := ob.Handle(eventData); err != nil {
-					fmt.Errorf(err.Error())
+					log.Errorf(err.Error())
 				}
 			}(ob)
 		}

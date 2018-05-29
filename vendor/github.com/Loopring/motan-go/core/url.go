@@ -195,6 +195,17 @@ func (u *URL) GetAddressStr() string {
 	return u.address
 }
 
+func (u *URL) CompositeAddresses() []string {
+	if u.address != "" {
+		return strings.Split(u.address, ",")
+	}
+	addresses := make([]string, 0, 5)
+	for _, host := range strings.Split(u.Host, ",") {
+		addresses = append(addresses, host + ":" + u.GetPortStr())
+	}
+	return addresses
+}
+
 func (u *URL) Copy() *URL {
 	newURL := &URL{Protocol: u.Protocol, Host: u.Host, Port: u.Port, Group: u.Group, Path: u.Path}
 	newParams := make(map[string]string)

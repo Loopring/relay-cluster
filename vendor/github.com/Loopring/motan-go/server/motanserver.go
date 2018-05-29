@@ -125,11 +125,11 @@ func (m *MotanServer) processReq(request *mpro.Message, conn net.Conn) {
 		req.GetRPCContext(true).ExtFactory = m.extFactory
 		if err != nil {
 			vlog.Errorf("motan server convert to motan request fail. rid :%d, service: %s, method:%s,err:%s\n", request.Header.RequestID, request.Metadata[mpro.MPath], request.Metadata[mpro.MMethod], err.Error())
-			mres = motan.BuildExceptionResponse(request.Header.RequestID, &motan.Exception{ErrCode: 500, ErrMsg: "deserialize fail. method:" + request.Metadata[mpro.MMethod], ErrType: motan.ServiceException})
+			mres = motan.BuildExceptionResponse(request.Header.RequestID, &motan.Exception{ErrCode: 500, ErrMsg: "convert to motan request fail. method:" + request.Metadata[mpro.MMethod], ErrType: motan.ServiceException})
 		} else {
 			req.GetRPCContext(true).ExtFactory = m.extFactory
 			mres = m.handler.Call(req)
-			//TOOD oneway
+			//TODO oneway
 		}
 		if mres != nil {
 			mres.GetRPCContext(true).Proxy = m.proxy
