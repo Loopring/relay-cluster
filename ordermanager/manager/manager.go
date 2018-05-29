@@ -132,6 +132,14 @@ func (om *OrderManagerImpl) handleSubmitRingMethod(input eventemitter.EventData)
 		log.Errorf(err.Error())
 	}
 
+	if len(event.OrderList) == 0 {
+		return nil
+	}
+
+	for _, v := range event.OrderList {
+		om.rds.UpdateOrderStatus(v.Hash, types.ORDER_PENDING, event.BlockNumber)
+	}
+
 	return nil
 }
 
