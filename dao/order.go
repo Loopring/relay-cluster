@@ -19,6 +19,7 @@
 package dao
 
 import (
+	"errors"
 	"fmt"
 	"github.com/Loopring/relay-lib/crypto"
 	"github.com/Loopring/relay-lib/log"
@@ -144,7 +145,12 @@ func (o *Order) ConvertUp(state *types.OrderState) error {
 	if len(o.AuthAddress) > 0 {
 		state.RawOrder.AuthAddr = common.HexToAddress(o.AuthAddress)
 	}
-	state.RawOrder.AuthPrivateKey, _ = crypto.NewPrivateKeyCrypto(false, o.PrivateKey)
+	if len(o.PrivateKey) > 0 {
+		authPrivateKey, err := crypto.NewPrivateKeyCrypto(false, o.PrivateKey)
+		if err == nil {
+			state.RawOrder.AuthPrivateKey = authPrivateKey
+		}
+	}
 	state.RawOrder.WalletAddress = common.HexToAddress(o.WalletAddress)
 
 	state.RawOrder.BuyNoMoreThanAmountB = o.BuyNoMoreThanAmountB
@@ -168,9 +174,11 @@ func (o *Order) ConvertUp(state *types.OrderState) error {
 	state.BroadcastTime = o.BroadcastTime
 	state.RawOrder.Market = o.Market
 	state.RawOrder.CreateTime = o.CreateTime
-	state.RawOrder.Side = o.Side
-
-	state.RawOrder.Side = util.GetSide(o.TokenS, o.TokenB)
+	if o.Side == "" {
+		state.RawOrder.Side = util.GetSide(o.TokenS, o.TokenB)
+	} else {
+		state.RawOrder.Side = o.Side
+	}
 	state.RawOrder.OrderType = o.OrderType
 	return nil
 }
@@ -179,24 +187,6 @@ func (s *RdsService) GetOrderByHash(orderhash common.Hash) (*Order, error) {
 	order := &Order{}
 	err := s.Db.Where("order_hash = ?", orderhash.Hex()).First(order).Error
 	return order, err
-}
-
-func (s *RdsService) GetOrdersByHash(orderhashs []string) (map[string]Order, error) {
-	var (
-		list []Order
-		err  error
-	)
-
-	ret := make(map[string]Order)
-	if err = s.Db.Where("order_hash in (?)", orderhashs).Find(&list).Error; err != nil {
-		return ret, err
-	}
-
-	for _, v := range list {
-		ret[v.OrderHash] = v
-	}
-
-	return ret, err
 }
 
 func (s *RdsService) MarkMinerOrders(filterOrderhashs []string, blockNumber int64) error {
@@ -218,7 +208,7 @@ func (s *RdsService) GetOrdersForMiner(protocol, tokenS, tokenB string, length i
 	)
 
 	if len(filterStatus) < 1 {
-		return list, fmt.Errorf("should filter cutoff and finished orders")
+		return list, errors.New("should filter cutoff and finished orders")
 	}
 
 	nowtime := time.Now().Unix()
@@ -228,6 +218,7 @@ func (s *RdsService) GetOrdersForMiner(protocol, tokenS, tokenB string, length i
 		Where("valid_since < ?", sinceTime).
 		Where("valid_until >= ? ", untilTime).
 		Where("status not in (?) ", filterStatus).
+		Where("order_type = ? ", types.ORDER_TYPE_MARKET).
 		Where("miner_block_mark between ? and ?", startBlockNumber, endBlockNumber).
 		Order("price desc").
 		Limit(length).
@@ -235,6 +226,24 @@ func (s *RdsService) GetOrdersForMiner(protocol, tokenS, tokenB string, length i
 		Error
 
 	return list, err
+}
+
+func (s *RdsService) GetOrdersByHash(orderhashs []string) (map[string]Order, error) {
+	var (
+		list []Order
+		err  error
+	)
+
+	ret := make(map[string]Order)
+	if err = s.Db.Where("order_hash in (?)", orderhashs).Find(&list).Error; err != nil {
+		return ret, err
+	}
+
+	for _, v := range list {
+		ret[v.OrderHash] = v
+	}
+
+	return ret, err
 }
 
 func (s *RdsService) GetCutoffOrders(owner common.Address, cutoffTime *big.Int) ([]Order, error) {
@@ -290,6 +299,7 @@ func (s *RdsService) GetOrderBook(delegate, tokenS, tokenB common.Address, lengt
 	err = s.Db.Where("delegate_address = ?", delegate.Hex()).
 		Where("token_s = ? and token_b = ?", tokenS.Hex(), tokenB.Hex()).
 		Where("status in (?)", filterStatus).
+		Where("order_type = ? ", types.ORDER_TYPE_MARKET).
 		Where("valid_since < ?", nowtime).
 		Where("valid_until >= ? ", nowtime).
 		Order("price desc").
@@ -407,15 +417,6 @@ func (s *RdsService) OrderPageQuery(query map[string]interface{}, statusList []i
 	return pageResult, err
 }
 
-func (s *RdsService) GetLatestOrders(query map[string]interface{}, length int) ([]Order, error) {
-	var (
-		orders []Order
-		err    error
-	)
-	err = s.Db.Where(query).Order("create_time DESC").Limit(length).Find(&orders).Error
-	return orders, err
-}
-
 func containStatus(status int, statusList []types.OrderStatus) bool {
 	if len(statusList) == 0 {
 		return false
@@ -523,4 +524,13 @@ func buildStatusInSet(statusSet []types.OrderStatus) string {
 	result += strings.Join(strSet, ",")
 	result += ")"
 	return result
+}
+
+func (s *RdsService) GetLatestOrders(query map[string]interface{}, length int) ([]Order, error) {
+	var (
+		orders []Order
+		err    error
+	)
+	err = s.Db.Where(query).Order("create_time DESC").Limit(length).Find(&orders).Error
+	return orders, err
 }

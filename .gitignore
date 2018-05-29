@@ -20,4 +20,5 @@ addparticipant.sh
 nohup.out
 data
 snapshot
+vendor.sh
 vendor/gopkg.in/googollee
