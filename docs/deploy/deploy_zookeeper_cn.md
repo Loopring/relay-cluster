@@ -34,7 +34,7 @@ x.x.x.x zoo3
 ```
 #如果没有部署jre，需要执行下面两步操作
 sudo apt update
-sudo apt install openjdk-9-jre-headless -y
+sudo apt install openjdk-8-jre-headless -y
 
 sudo mkdir /opt/loopring
 sudo chown -R ubuntu:ubuntu /opt/loopring
