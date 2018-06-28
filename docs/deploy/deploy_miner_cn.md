@@ -121,7 +121,7 @@ mkdir -p /tmp/svc/log
 在`Loopring/miner/bin/svc/run`的基础上修改svc/run
 ```
 #修改unlocks为矿工费用接受地址，password为该地址对应口令，这里的地址应该和上面配置的keystore地址一致
-exec setuidgid ubuntu $WORK_DIR/bin/miner --unlocks=0x1111111111111111111111111111 --passwords xxxx --config $WORK_DIR/config/miner.toml 2>&1
+exec setuidgid ubuntu $WORK_DIR/bin/miner --unlocks ‘0x1111111111111111111111111111’ --passwords ‘xxxxxxxx’ --config $WORK_DIR/config/miner.toml 2>&1
 ```
 上传配置脚本
 ```
