@@ -83,7 +83,7 @@ log_dir: "/var/log/miner"
 #设置zookeeper内网ip地址
   zk-registry:
     protocol: zookeeper
-    host: xx.xx.xx.xx,xx.xx.xx.xx,xx.xx.xx.xx
+    host: xx.xx.xx.xx
     port: 2181
 ```
 * tokens.json
