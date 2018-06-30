@@ -22,7 +22,7 @@ mvn install -DskipTests
 cd motan-manager
 ```
 
-修改初始化sql文件，在“DROP TABLE......”这句前面插入以下命令来创建motan_manager db， `vim src/main/resources/motan-manager.sql`
+修改初始化sql文件，在“DROP TABLE...”这句前面插入以下命令来创建motan_manager db， `vim src/main/resources/motan-manager.sql`
 
 ```
 create database motan_manager;
