@@ -16,5 +16,5 @@
 sudo mdkir -p /data/ethereum
 sudo chown -R ubuntu:ubuntu /data/ethereum
 #启动脚本请参考如下进行配置，其中ip地址为本机内网地址
-geth --datadir /data/ethereum --fast --cache=1024 --rpc --rpcaddr x.x.x.x --rpcport 8545 --rpccorsdomain *
+sudo geth --datadir /data/ethereum --fast --cache=1024 --rpc --rpcaddr x.x.x.x --rpcport 8545 --rpccorsdomain * &
 ```
