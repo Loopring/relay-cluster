@@ -32,9 +32,9 @@ sudo make install
 ### 部署node-zk-browser
 ```
 cd /opt/loopring
-git clone https://github.com/killme2008/node-zk-browser.git
+sudo git clone https://github.com/killme2008/node-zk-browser.git
 cd node-zk-browser
-npm install -d
+sudo npm install -d
 ```
 
 ## 启停
