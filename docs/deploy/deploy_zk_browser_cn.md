@@ -42,7 +42,7 @@ npm install -d
 ### 启动
 编辑启动脚本，设置连接的zk节点
 
-`vim start.sh`
+`sudo vim start.sh`
 
 修改下面的配置项为正确的ip和端口，多个zk节点使用逗号分隔
 ```
@@ -50,7 +50,7 @@ export ZK_HOST="xx.xx.xx.xx:2181"
 ```
 启动
 ```
-./start.sh
+sudo ./start.sh
 
 ```
 
