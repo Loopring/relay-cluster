@@ -31,6 +31,7 @@ sudo make install
 
 ### 部署node-zk-browser
 ```
+sudo mkdir -p /opt/loopring
 cd /opt/loopring
 git clone https://github.com/killme2008/node-zk-browser.git
 cd node-zk-browser
