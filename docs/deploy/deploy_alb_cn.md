@@ -84,7 +84,7 @@ ALB（Application Load Balancer）是aws提供的负载局衡器，ALB具有比�
 | /rpc/*      | relayClusterGroup |
 | /rpc/v2/*   | relayClusterGroup |
 | /eth        | ethGroup |
-| /socket.io/*| relayClusterGroup |
+| /socket.io/*| relayClusterWebSockets |
 
 ## 确认部署状态
 【EC2-负载平衡-目标群组】，依次点击查看前面创建的三个目标组的【目标】tab，确认【状态】列为【healthy】，如果提示【unhealthy】，鼠标移到后面的叹号图标，查看提示原因，然后进行解决
