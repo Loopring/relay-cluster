@@ -18,7 +18,7 @@ sudo chown -R ubuntu:ubuntu /opt/loopring/
 cd /opt/loopring/
 git clone https://github.com/weibocom/motan.git
 cd motan
-mvn install -DskipTests
+mvn clean
 cd motan-manager
 ```
 
