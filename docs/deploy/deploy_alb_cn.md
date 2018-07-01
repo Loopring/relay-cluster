@@ -56,7 +56,7 @@ ALB（Application Load Balancer）是aws提供的负载局衡器，ALB具有比�
 
 【侦听器】，添加HTTP，端口选择默认的80。如果在证书颁发机构申请了证书，请额外添加HTTPS侦听器
 
-【可用区】选择你部署了relay-cluster的所有可用区，至少选择连个区
+【可用区】选择你部署了relay-cluster的所有可用区，至少选择两个区
 
 * 步骤 2: 配置安全设置
 如果已经在证书颁发机构申请了https的证书，请在这里配置该证书，安全策略选择`ELBSecurityPolicy-2016-08`
