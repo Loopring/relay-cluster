@@ -10,6 +10,7 @@ motan-manager是weibo motan-rpc的开源组件的一部分，可以用来查看�
 ## 部署
 ```
 #部署mysql并记下用户名口令
+sudo apt update -y
 sudo apt install mysql-server -y
 sudo apt install maven -y
 sudo apt install openjdk-8-jdk-headless -y
