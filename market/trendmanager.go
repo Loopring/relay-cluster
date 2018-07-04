@@ -904,8 +904,8 @@ func (t *TrendManager) GetTicker() (tickers []Ticker, err error) {
 			for _, v := range tickerMap {
 				v.Amount, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Amount), 64)
 				v.Vol, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Vol), 64)
-				v.Buy, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
-				v.Sell, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
+				v.Buy, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Buy), 64)
+				v.Sell, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Sell), 64)
 				v.Open, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Open), 64)
 				v.Close, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Close), 64)
 				v.Last, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
@@ -957,8 +957,8 @@ func (t *TrendManager) GetTickerByMarket(mkt string) (ticker Ticker, err error) 
 			tickerMap := localCacheValue.(map[string]Ticker)
 			for k, v := range tickerMap {
 				if k == mkt {
-					v.Buy, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
-					v.Sell, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
+					v.Buy, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Buy), 64)
+					v.Sell, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Sell), 64)
 					return v, err
 				}
 			}
@@ -972,8 +972,8 @@ func (t *TrendManager) GetTickerByMarket(mkt string) (ticker Ticker, err error) 
 			t.localCache.Set(localCacheTicker, tickerMap, 5*time.Second)
 			for k, v := range tickerMap {
 				if k == mkt {
-					v.Buy, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
-					v.Sell, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Last), 64)
+					v.Buy, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Buy), 64)
+					v.Sell, _ = strconv.ParseFloat(fmt.Sprintf("%0.8f", v.Sell), 64)
 					return v, err
 				}
 			}
