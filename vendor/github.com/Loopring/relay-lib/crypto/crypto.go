@@ -117,6 +117,9 @@ func (c EthPrivateKeyCrypto) Sign(hashPre []byte, signerAddr common.Address) ([]
 }
 
 func (c EthPrivateKeyCrypto) Address() common.Address {
+	if c.privateKey == nil {
+		return common.StringToAddress("0x0")
+	}
 	return ethCrypto.PubkeyToAddress(c.privateKey.PublicKey)
 }
 

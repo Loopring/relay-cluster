@@ -30,6 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"strings"
+	"time"
 )
 
 const (
@@ -247,12 +248,23 @@ func (accountBalances AccountBalances) syncFromCache(tokens ...common.Address) (
 
 func (accountBalances AccountBalances) syncFromEthNode(tokens ...common.Address) error {
 	reqs := accountBalances.batchReqs(tokens...)
+
+	maxRetry  := 2 // 次数
+	tokensLen := len(tokens)
+	singleHitWarn   := false
+
+RetryGetBalance:
 	if err := accessor.BatchCall("latest", []accessor.BatchReq{reqs}); nil != err {
 		return err
 	}
 	for _, req := range reqs {
+		singleHitWarn = false
 		if nil != req.BalanceErr {
-			log.Errorf("get balance failed, owner:%s, token:%s, err:%s", req.Owner.Hex(), req.Token.Hex(), req.BalanceErr.Error())
+			if tokensLen == 1 && maxRetry >= 1 {
+				maxRetry--
+				singleHitWarn = true
+			}
+			log.Warnf("BatchCall get balance failed, owner:%s, token:%s, err:%s", req.Owner.Hex(), req.Token.Hex(), req.BalanceErr.Error())
 		} else {
 			balance := Balance{}
 			balance.Balance = &req.Balance
@@ -260,6 +272,18 @@ func (accountBalances AccountBalances) syncFromEthNode(tokens ...common.Address)
 			accountBalances.Balances[req.Token] = balance
 		}
 	}
+	
+	if maxRetry >= 0 && singleHitWarn {
+		time.Sleep(200)
+		goto RetryGetBalance
+	}
+        // 下面是批量情况
+	if tokensLen > 1 && len(accountBalances.Balances) <= 1  {
+		time.Sleep(500 )
+		tokensLen = 0
+		goto RetryGetBalance
+	}
+
 	return nil
 }
 
@@ -468,12 +492,22 @@ func (accountAllowances *AccountAllowances) syncFromCache(tokens, spenders []com
 
 func (accountAllowances *AccountAllowances) syncFromEthNode(fields [][]byte) error {
 	reqs := accountAllowances.batchReqs(fields)
+
+	maxRetry := 2
+	reqsLen  := len(reqs)
+	singleHitWarn := false
+RetryGetAllowance:
 	if err := accessor.BatchCall("latest", []accessor.BatchReq{reqs}); nil != err {
 		return err
 	}
 	for _, req := range reqs {
+		singleHitWarn = false
 		if nil != req.AllowanceErr {
-			log.Errorf("get balance failed, owner:%s, token:%s, err:%s", req.Owner.Hex(), req.Token.Hex(), req.AllowanceErr.Error())
+			if reqsLen == 1 && maxRetry >= 1 {
+				maxRetry--
+				singleHitWarn = true
+			}
+			log.Errorf("syncFromEthNode get Allowances failed, owner:%s, token:%s, err:%s", req.Owner.Hex(), req.Token.Hex(), req.AllowanceErr.Error())
 		} else {
 			allowance := Allowance{}
 			allowance.Allowance = &req.Allowance
@@ -483,6 +517,16 @@ func (accountAllowances *AccountAllowances) syncFromEthNode(fields [][]byte) err
 			}
 			accountAllowances.Allowances[req.Token][req.Spender] = allowance
 		}
+	}
+
+	if maxRetry >= 0 && singleHitWarn {
+		time.Sleep(200)
+		goto RetryGetAllowance
+	}
+	if reqsLen > 1 && len(accountAllowances.Allowances) <= 1  {
+		time.Sleep(500 )
+		reqsLen = 0
+		goto RetryGetAllowance
 	}
 
 	return nil
