@@ -242,8 +242,14 @@ func (f *BaseFilter) filter(o *types.Order) (bool, error) {
 		return false, fmt.Errorf("protocol and Delegate are not matched")
 	}
 
-	if o.OrderType == types.ORDER_TYPE_MARKET && o.AuthPrivateKey.Address() != o.AuthAddr {
-		return false, fmt.Errorf("market order auth private key not correct")
+	if o.OrderType == types.ORDER_TYPE_MARKET {
+		authPriAddress := o.AuthPrivateKey.Address()
+		if authPriAddress == common.StringToAddress("0x0") {
+			return false, fmt.Errorf("very bad! market type but no pri key")
+		}
+		if authPriAddress != o.AuthAddr {
+			return false, fmt.Errorf("market order auth private key not correct")
+		}
 	}
 
 	if o.TokenB != util.AliasToAddress("LRC") {
