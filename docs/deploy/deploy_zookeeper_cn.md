@@ -58,7 +58,10 @@ server.3=zoo3:2888:3888
 ```
 
 初始化myid，这里"n"在三台服务器的取值一次为1，2，3，和上面zoo.conf一致
+
+```
 `echo "n" > /opt/loopring/data/zookeeper/myid`
+```
 
 ## 启停
 
