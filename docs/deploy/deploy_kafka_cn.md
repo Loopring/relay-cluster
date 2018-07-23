@@ -10,13 +10,14 @@ kafka是extractor和relay-cluster之间的消息通信服务
 ### 申请EC2实例并关联安全组
 申请3台EC2服务器，参考[EC2实例](new_ec2_cn.md)
 
-关联`kafka-SecurityGroup`安全组。如果未创建该安全组，请参考[aws安全组](security_group_cn.md)关于`kafka-SecurityGroup`安全组的说明，创建后再关联
+关联`kafka-SecurityGroup`安全组。
+> 如果未创建该安全组，请参考[aws安全组](security_group_cn.md)关于`kafka-SecurityGroup`安全组的说明，创建后再关联
 
 ### 部署kafka
 ```
 #如果没有部署jre，需要执行下面两步操作
 sudo apt update
-sudo apt install openjdk-9-jre-headless -y
+sudo apt -y install openjdk-9-jre-headless
 
 sudo mkdir /opt/loopring
 sudo chown -R ubuntu:ubuntu /opt/loopring
@@ -46,8 +47,8 @@ log.flush.interval.ms=300
 log.flush.scheduler.interval.ms=300
 log.flush.start.offset.checkpoint.interval.ms=2000
 log.retention.hours=168
-#设置正确的zookeeper配置，如果已经设置了host可以用下面的配置，否则直接指定ip
-zookeeper.connect=zoo1:2181,zoo2:2181,zoo3:2181
+#修改为zookeeper节点的内网ip和端口，多个节点间使用逗号分隔
+zookeeper.connect=xx.xx.xx.xx:2181,xx.xx.xx.xx:2181,xx.xx.xx.xx:2181
 default.replication.factor=3
 ```
 

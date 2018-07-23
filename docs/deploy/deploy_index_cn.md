@@ -1,26 +1,31 @@
 # Loopring部署文档
 
-> relay-cluster相关组件都部署在aws，部分功能强依赖aws提供的相关服务，如果采用其他云服务提供商，可能会造成部分功能不可用，或出现一些非预期的异常。
+本文档是所有组件部署说明的索引，并依次按照组件的依赖顺序进行了详细的介绍，使用者也应该按照此顺序去阅读和部署。
 
-> relay-cluster及其依赖的extracor服务，都需要通过集群的方式进行部署来避免单点故障。虽然可以只部署单个节点，但是单节点的正常启动依然需要依赖于组成集群的基础组件，包括zookeeper，kafka。
+## 依赖说明
 
-本文档是后端所有组件部署说明的索引，并按照依赖顺序分别进行介绍，被依赖的组件会放在前面，使用者也应该按照这个顺序去阅读和操作具体的部署。
+> relay-cluster部分功能强依赖aws提供的相关服务，若采用其他云服务提供商，可能会造成部分功能不可用，或出现一些非预期的异常。
+
+> relay-cluster及其依赖的extractor服务，都需要通过集群的方式进行部署来避免单点故障，虽然可以只部署单个节点，但是单节点的正常启动依然需要依赖于组成集群的基础组件，如zookeeper，kafka。
+
+## 注册AWS
+
+官方网站：https://aws.amazon.com/
 
 ## 通用
-部署任何组件前要先选择合适配置的EC2实例启动，组件会部署在该实例上。实例启动后还需要关联自定义安全组以允许实例之间进行特定端口的通信。
+
+* [aws安全组](security_group_cn.md)
+
+限制非预期的端口访问，提高服务的网络安全，本文档集中定义了所有组件的安全组配置，按照文档所列顺序依次配置即可。
 
 * [EC2实例](new_ec2_cn.md)
 
 启动合适性能的EC2实例，并可根据部署组件的需要，在启动向导中进行必要的配置，或者启动后进行配置。
 
-* [aws安全组](security_group_cn.md)
-
-通过安全组限制非预期的端口访问，提高服务的安全性。该文档集中定义了所有组件的安全组配置，可以按照文档所列顺序进行配置。
-
 ## 存储及通信
 * [ethnode](deploy_geth_cn.md)
 
-relay-cluster通过和go-ethereum(geth)节点的交互来实现以太坊网络的接入。
+relay-cluster通过和ethereum(geth)节点的交互来实现以太坊网络的接入。
 
 * [mysql](deploy_mysql_cn.md)
 
@@ -34,7 +39,7 @@ relay-cluster通过和go-ethereum(geth)节点的交互来实现以太坊网络�
 
 用来做系统的配置管理以及kafka的元数据存储。
 
-* [kafka](deploy_kafka_cn)
+* [kafka](deploy_kafka_cn.md)
 
 实现服务间的异步通信，方便系统解耦和扩展。
 
@@ -56,9 +61,10 @@ relay-cluster通过和go-ethereum(geth)节点的交互来实现以太坊网络�
 撮合服务，接收订单，发现环路，提交环路到以太坊网络。
 
 ## web接入
-目前通过aws ALB作为relay-cluster和ethnode的统一请求代理入口。
 
 * [ALB](deploy_alb_cn.md)
+
+目前通过aws ALB作为relay-cluster和ethnode的统一请求代理入口。
 
 ## 辅助管理系统【可选】
 * [kafka-manager](deploy_kafka_manager_cn.md)

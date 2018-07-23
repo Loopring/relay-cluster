@@ -4,7 +4,8 @@ kafka-manager是yahoo开源的kafka管理工具，可以用来查看集群内的
 ## 申请EC2实例并关联安全组
 申请1台EC2服务器，参考[EC2实例](new_ec2_cn.md)
 
-关联`kafkaManger-SecurityGroup`安全组。如果未创建该安全组，请参考[aws安全组](security_group_cn.md)关于`kafkaManger-SecurityGroup`安全组的说明，创建后再关联
+关联`kafkaManger-SecurityGroup`安全组。
+> 如果未创建该安全组，请参考[aws安全组](security_group_cn.md)关于`kafkaManger-SecurityGroup`安全组的说明，创建后再关联
 
 ## 部署
 ```
@@ -26,11 +27,14 @@ cd kafka-manager-1.3.3.17
 ```
 修改conf/application.conf
 
-`vim conf/application.conf`
+`vim /opt/loopring/kafka-manager/kafka-manager-1.3.3.17/conf/application.conf`
 ```
-#如果设置了zookeeper的hosts，可以如下配置，否则使用zookeeper 内网ip地址
-kafka-manager.zkhosts="zoo1:2181,zoo2:2181,zoo3:2181"
-#根据实际情况配置下面认证选项
+#修改为zookeeper节点的内网ip和端口，多个节点间使用逗号分隔
+
+kafka-manager.zkhosts="xx.xx.xx.xx:2181,xx.xx.xx.xx:2181,xx.xx.xx.xx:2181"
+
+#配置认证选项
+
 basicAuthentication.enabled=true
 basicAuthentication.username="admin"
 basicAuthentication.password="admin"
@@ -44,7 +48,7 @@ basicAuthentication.password="admin"
 `pkill -f "play.core.server.ProdServerStart"`
 
 ## 日志
-/opt/loopring/kafka-manager-1.3.3.17/nohup.out
+`/opt/loopring/kafka-manager/kafka-manager-1.3.3.17/nohup.out`
 
 ## 访问
 浏览器访问 `http://外网ip:9000`

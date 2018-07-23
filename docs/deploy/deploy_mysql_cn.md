@@ -50,11 +50,12 @@ mysql是relay-cluster后端服务的主要存储
 ### 创建单机MySQL实例
 参考[启动aws EC2实例](new_ec2_cn.md)，启动实例，并且关联`mysql-securityGroup`安全组
 
-执行以下脚本以部署Mysql实例
+执行以下命令部署Mysql实例
 ```
-sudo apt install mysql-server
+sudo apt update
+sudo apt -y install mysql-server
 ```
-根据界面提示输入root用户对应口令，并再次确认
+根据界面提示输入root用户对应的口令，并再次确认
 
 创建relay db
 ```
@@ -66,4 +67,4 @@ CREATE DATABASE relay;
 
 > relay和miner都会用到mysql数据库，建议创建不同的数据库实例，避免互相影响
 
-记录前面创建db时指定的用户名口令，在相关配置文件中配置即可，同时也可以通过千面的命令行工具访问数据库实例
+记录前面创建db时指定的用户名口令，在相关配置文件中配置即可，同时也可以通过上面的命令行工具访问数据库实例

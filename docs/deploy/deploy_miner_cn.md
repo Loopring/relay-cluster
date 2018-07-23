@@ -6,7 +6,8 @@
 启动EC2实例，并在启动实例过程中添加对CodeDeploy的支持，参考[启动aws EC2实例](new_ec2_cn.md)
 
 ### 配置安全组
-关联`miner-SecurityGroup`安全组。如果未创建该安全组，请参考[aws安全组](security_group_cn.md)关于`miner-SecurityGroup`安全组的说明，创建后再关联
+关联`miner-SecurityGroup`安全组。
+> 若未创建该安全组，请参考[aws安全组](security_group_cn.md)关于`miner-SecurityGroup`安全组的说明，创建后再关联
 
 ## 部署配置文件
 
@@ -15,7 +16,7 @@
 ### 创建配置文件
 * miner.toml
 
-在`Loopring/miner/config/miner.toml`的基础上进行如下必要的修改
+在 https://github.com/Loopring/miner/blob/master/config/miner.toml 的基础上进行如下必要的修改
 ```
     output_paths = ["/var/log/miner/zap.log"]
     error_output_paths = ["/var/log/miner/err.log"]
@@ -67,7 +68,7 @@
 [kafka]
     brokers = ["xx.xx.xx.xx:9092","xx.xx.xx.xx:9092","xx.xx.xx.xx:9092"]
 
-[cloudwatch]
+[cloud_watch]
     enabled = false
     region = ""
 ```
@@ -76,14 +77,14 @@
 
 * motan_client.yaml
 
-在`Loopring/miner/config/motan_client.yaml`的基础上进行如下必要的修改
+在 https://github.com/Loopring/miner/blob/master/config/motan_client.yaml 的基础上进行如下必要的修改
 ```
 log_dir: "/var/log/miner"
 ...
 #设置zookeeper内网ip地址
   zk-registry:
     protocol: zookeeper
-    host: xx.xx.xx.xx,xx.xx.xx.xx,xx.xx.xx.xx
+    host: xx.xx.xx.xx
     port: 2181
 ```
 * tokens.json
@@ -108,7 +109,12 @@ scp -i xx.pem tokens.json ubuntu@x.x.x.x:/opt/loopring/miner/config
 ```
 * 部署keystore
 
-将接受矿工费用的eth地址对应keystore文件复制到目录 `/opt/loopring/miner/config/keystore`
+创建keystore文件夹
+```
+sudo mkdir -p /opt/loopring/miner/config/keystore
+```
+
+将接受矿工费用的eth地址对应keystore文件复制到该目录 
 
 ### 部署deamontools配置
 
@@ -118,10 +124,10 @@ scp -i xx.pem tokens.json ubuntu@x.x.x.x:/opt/loopring/miner/config
 ```
 mkdir -p /tmp/svc/log
 ```
-在`Loopring/miner/bin/svc/run`的基础上修改svc/run
+在 https://github.com/Loopring/miner/blob/master/bin/svc/run 的基础上修改svc/run
 ```
 #修改unlocks为矿工费用接受地址，password为该地址对应口令，这里的地址应该和上面配置的keystore地址一致
-exec setuidgid ubuntu $WORK_DIR/bin/miner --unlocks=0x1111111111111111111111111111 --passwords xxxx --config $WORK_DIR/config/miner.toml 2>&1
+exec setuidgid ubuntu $WORK_DIR/bin/miner --unlocks ‘0x1111111111111111111111111111’ --passwords ‘xxxxxxxx’ --config $WORK_DIR/config/miner.toml 2>&1
 ```
 上传配置脚本
 ```

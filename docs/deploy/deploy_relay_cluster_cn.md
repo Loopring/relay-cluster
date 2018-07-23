@@ -6,7 +6,8 @@
 启动EC2实例，并在启动实例过程中添加对CodeDeploy的支持，参考[启动aws EC2实例](new_ec2_cn.md)
 
 ### 配置安全组
-为每个实例关联名为`relayCluster-SecurityGroup`的安全组，如果还没有创建，请参考[配置aws安全组](security_group_cn.md)关于`relayCluster-SecurityGroup`部分的说明进行配置后再进行关联
+为每个实例关联名为`relayCluster-SecurityGroup`的安全组
+> 若没创建，请参考[配置aws安全组](security_group_cn.md)关于`relayCluster-SecurityGroup`部分的说明进行配置后再进行关联
 
 ### 部署配置文件
 目前relay的基本配置是通过静态配置文件来实现的，所以需要将配置文件在本地配置好并上传所有待部署服务器，不过这个工作只在第一次部署的时候必要，后续都会利用这个静态配置文件启动服务【待优化】
@@ -14,7 +15,7 @@
 #### 创建配置文件
 * relay.toml
 
-在`Loopring/relay-cluster/config/relay.toml`的基础上进行如下必要的修改
+在 https://github.com/Loopring/relay-cluster/blob/master/config/relay.toml 的基础上进行如下必要的修改
 ```
     output_paths = ["/var/log/relay/zap.log"]
     error_output_paths = ["/var/log/relay/err.log"]
@@ -64,7 +65,7 @@
     app_secret = "xxxx"
     base_url = "https://open.api.mytoken.io/"
 
-[cloudwatch]
+[cloud_watch]
     enabled = false
     region = ""
 ```
@@ -73,7 +74,8 @@
 
 * motan_server.yaml
 
-在`Loopring/relay-cluster/config/motan_server.yaml`的基础上进行如下必要的修改
+在 https://github.com/Loopring/relay-cluster/blob/master/config/motan_server.yaml 的基础上进行如下必要的修改
+
 ```
 log_dir: "/var/log/relay"
 ...
