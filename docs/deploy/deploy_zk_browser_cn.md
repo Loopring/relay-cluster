@@ -20,6 +20,7 @@ sudo apt-get install gcc g++ libffi-dev libkrb5-dev  libsasl2-dev libsasl2-modul
 
 ### 部署node
 ```
+sudo mkdir -p /opt/loopring
 cd /opt/loopring
 wget https://github.com/nodejs/node-v0.x-archive/archive/v0.12.7.tar.gz
 tar xzf v0.12.7.tar.gz
@@ -42,7 +43,7 @@ sudo npm install -d
 ### 启动
 编辑启动脚本，设置连接的zk节点
 
-`vim start.sh`
+`sudo vim start.sh`
 
 修改下面的配置项为正确的ip和端口，多个zk节点使用逗号分隔
 ```
@@ -50,7 +51,7 @@ export ZK_HOST="xx.xx.xx.xx:2181"
 ```
 启动
 ```
-./start.sh
+sudo ./start.sh
 
 ```
 
