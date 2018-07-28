@@ -147,7 +147,7 @@ echo "3" > /opt/loopring/data/zookeeper3/myid
 /opt/loopring/zookeeper-3.4.10/bin/zkServer.sh start /opt/loopring/zookeeper-3.4.10/conf/zoo2.cfg
 /opt/loopring/zookeeper-3.4.10/bin/zkServer.sh start /opt/loopring/zookeeper-3.4.10/conf/zoo3.cfg
 ```
-###### 确认服务正常启动
+* ###### 确认服务正常启动
 ```
 tail -f /opt/loopring/zookeeper-3.4.10/zookeeper.out
 telnet localhost 2181
