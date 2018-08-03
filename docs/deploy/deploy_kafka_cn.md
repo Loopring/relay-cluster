@@ -49,7 +49,7 @@ log.flush.scheduler.interval.ms=300
 log.flush.start.offset.checkpoint.interval.ms=2000
 log.retention.hours=168
 #修改为3台zookeeper节点的内网ip，多个节点间使用逗号分隔
-zookeeper.connect=xx.xx.xx.xx:2181,xx.xx.xx.xx:2181,xx.xx.xx.xx:2181
+zookeeper.connect=x.x.x.x:2181,x.x.x.x:2181,x.x.x.x:2181
 default.replication.factor=3
 ```
 #### 启停
