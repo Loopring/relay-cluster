@@ -47,7 +47,7 @@ server.2=x.x.x.x:2888:3888
 server.3=x.x.x.x:2888:3888
 ```
 
-初始化myid，这里"n"在三台服务器的取值依次为1，2，3与上面zoo.cf对应，每台服务器仅执行一次自身对应取值的命令
+初始化myid，这里"n"在三台服务器的取值依次为1，2，3与上面zoo.cfg对应，每台服务器仅执行一次自身对应取值的命令
 
 `echo "n" > /opt/loopring/data/zookeeper/myid`
 
