@@ -30,7 +30,7 @@ error_output_paths = ["/var/log/miner/err.log"]
     port = "6379"
 #ethnode实例内网ip，多个实例之间用逗号进行分割
 [accessor]
-    raw_urls = ["http://xx.xx.xx.xx:8545", "http://xx.xx.xx.xx:8545"]
+    raw_urls = ["http://x.x.x.x:8545", "http://x.x.x.x:8545"]
 #eth主网合约配置，如果非主网，要联系开源人员获取最新的测试配置
 [loopring_accessor.address]
     "v1.5" = "0x8d8812b72d1e4ffCeC158D25f56748b7d67c1e78"
@@ -109,7 +109,7 @@ scp -i xx.pem tokens.json ubuntu@x.x.x.x:/opt/loopring/miner/config
 ```
 * 部署keystore
 
-通过私钥生成keystore文件并自动导入到miner中，其中--private-key填私钥，--passphrase填keystore的密码
+通过私钥生成keystore文件并自动导入到miner中，其中--private-key填私钥，--passphrase填加密改keystore的密码
 ```
 cd /opt/loopring/miner
 bin/miner account import --datadir config/keystore --private-key xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx --passphrase xxxxxx
