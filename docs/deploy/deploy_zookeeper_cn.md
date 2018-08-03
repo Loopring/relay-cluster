@@ -42,9 +42,9 @@ cp zoo_sample.cfg zoo.cfg
 
 ```
 dataDir=/opt/loopring/data/zookeeper
-server.1=xx.xx.xx.xx:2888:3888
-server.2=xx.xx.xx.xx:2888:3888
-server.3=xx.xx.xx.xx:2888:3888
+server.1=x.x.x.x:2888:3888
+server.2=x.x.x.x:2888:3888
+server.3=x.x.x.x:2888:3888
 ```
 
 初始化myid，这里"n"在3台服务器的取值依次为1，2，3，和上面zoo.conf一致，每台服务器仅执行一次自身对应取值的命令
