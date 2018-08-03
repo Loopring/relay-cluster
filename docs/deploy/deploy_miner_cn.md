@@ -60,12 +60,12 @@ error_output_paths = ["/var/log/miner/err.log"]
 
 #zookeeper内网ip
 [zk_lock]
-    zk_servers = "xx.xx.xx.xx:2181,xx.xx.xx.xx:2181,xx.xx.xx.xx:2181"
+    zk_servers = "x.x.x.x:2181,x.x.x.x:2181,x.x.x.x:2181"
     #测试场景下修改为：zk_servers = "x.x.x.x:2181"
 ...
 #kafka内网ip
 [kafka]
-    brokers = ["xx.xx.xx.xx:9092","xx.xx.xx.xx:9092","xx.xx.xx.xx:9092"]
+    brokers = ["x.x.x.x:9092","x.x.x.x:9092","x.x.x.x:9092"]
     #测试场景下修改为：brokers = ["x.x.x.x:9092"]
 [cloud_watch]
     enabled = false
