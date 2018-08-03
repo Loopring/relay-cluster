@@ -159,7 +159,7 @@ zookeeper.connect=x.x.x.x:2181
 default.replication.factor=3
 ```
 
-若采用免费aws实例，由于内存不足，启动后会立即exit，并在日志报错“Cannot allocate memory”，进行如下修改即可
+若采用免费aws实例做测试，由于内存不足，启动后会立即exit，并在日志报错“Cannot allocate memory”，进行如下修改即可
 
 `sudo vim /opt/loopring/kafka_2.12-0.11.0.2/bin/kafka-server-start.sh`
 
