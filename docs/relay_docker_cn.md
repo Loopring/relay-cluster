@@ -1,6 +1,6 @@
 # Loopring Relay Docker部署文档
 
-官方提供loopring/relay-cluster，最新版本：v1.5.0
+官方提供Docker镜像，最新版本：v1.5.0
 
 ## 部署
 * 获取docker镜像
