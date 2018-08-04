@@ -58,7 +58,7 @@
 订单 | AmountS | 欲出售的Token数量
 订单 | AmountB | 欲买入的Token数量
 订单 | ValidSince | 订单生效开始时间，采用时间戳表示，若当前时间小于ValidSince，则订单处于未生效状态。
-订单 | ValidUntil | 订单有效截止时间，采用时间戳表示，超过后该时间后，订单会自动失效。
+订单 | ValidUntil | 订单有效截止时间，采用时间戳表示，超过后该时间后订单会自动失效。
 订单 | LrcFee | 设置该笔订单撮合需要的LrcFee
 订单 | buyNoMoreThanAmountB | 表示是否允许购买超过amountB数量的tokeB，比如当前市场卖价(LRC-WETH)是0.001，用户下单价格是0.002买入100个（需要0.2个WETH），如果buyNoMoreThanAmountB=true，那最终用户会以0.001的价格（不考虑撮合收益）购买到100个LRC，消耗0.1个WETH；如果buyNoMoreThanAmountB=false，那最终用户会消耗掉所有的WETH（0.2个）以0.001的价格（不考虑撮合收益）购买到200个LRC。
 订单 | marginSplitPercentage | 撮合分润中用来支付撮合费的比例，通常默认是50%。
