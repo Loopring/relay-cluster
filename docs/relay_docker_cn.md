@@ -1,4 +1,4 @@
-# Loopring relay-cluster Docker 中文文档
+# Loopring Relay Docker部署文档
 
 loopring开发团队提供loopring/relay-cluster,最新版本是v1.5.0。<br>
 
