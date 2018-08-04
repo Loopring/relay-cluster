@@ -52,7 +52,7 @@
 订单 | Owner | 订单的所有者，即用户的钱包地址。
 订单 | OrderType | 订单类型，中继支持两种订单类型: market_order( 市场订单)是整个交易所订单池共享的订单，可以被任何人成交，p2p_order(点对点订单)是不包含钱包认证私钥的订单，只能被授权共享了钱包认证私钥的用户才能撮合，且点对点订单不会展示到最新挂单之中。
 订单 | WalletAddress | 分润地址，通常是钱包或交易所等产品研发团队的地址，用来接收订单成功撮合后的利润分成，目前的方案是：钱包或交易所获得整个撮合利润的20%，撮合者(Miner)则获得剩余的80%。
-订单 | AuthAddr & AuthPrivateKey | 用来防止订单或环路被篡改，提交订单时AuthAddr用来给订单签名，AuthPrivateKey则用来给待提交的环路签名，同时在p2p_order的场景下，通过二维码将订单只分享给指定用户时，AuthPrivateKey还可以保护订单只被对方成交。
+订单 | AuthAddr & AuthPrivateKey | 用来防止订单或环路被篡改，提交订单时AuthAddr用来给订单签名，AuthPrivateKey则用来给待提交的环路签名，同时在p2p交易的场景下，通过二维码将订单只分享给指定用户时，AuthPrivateKey还可以保护订单只被对方成交。
 订单 | TokenS | 欲出售的Token, 请参考支持的Token列表（token.json）
 订单 | TokenB | 欲买入的Token，请参考支持的Token列表（token.json）
 订单 | AmountS | 欲出售的Token数量
