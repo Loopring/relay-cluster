@@ -63,13 +63,13 @@
 订单 | buyNoMoreThanAmountB | 是否允许购买超过amountB数量的tokeB，例如：当前市场LRC-WETH的卖价是0.001，某用户以0.002的价格下单买入100个（消耗0.2个WETH），如果buyNoMoreThanAmountB=true，最终用户会以0.001的价格（不考虑撮合收益）购买到100个LRC，仅消耗0.1个WETH；但如果buyNoMoreThanAmountB=false，则会消耗掉该用户所有的WETH（0.2个）以0.001的价格（不考虑撮合收益）购买到200个LRC。
 订单 | marginSplitPercentage | 撮合分润中用来支付撮合费的比例，通常默认是50%。
 订单 | v, r, s | 订单签名的结果，先对订单部分字段采用Keccak256算法生成OrderHash, 再对OrderHash做ECDSA签名的结果。
-订单 | powNonce | 订单提交工作量证明，为了防止订单子系统被spam，我们采用工作量证明的方式来限制过多的订单提交，powNonce参与工作量证明算法计算，订单通过工作量证明校验后，再提交到Relay，中继接收到订单后会以相同的工作量证明算法来校验nonce是否通过了工作量证明。
-订单 | 撮合 | 即两个以上订单满足形成Loopring环路的条件，可以形成环形成交，环形成交即Loopring的撮合。
-订单 | 环路 | 相对于传统交易所订单两两互相成交，Loopring可以针对多笔订单串联形成环形成交队列，这个环形头尾相连的订单队列，即环路。
-订单 | 软取消 | 在Loopr2版本的钱包中，用户取消订单只能提交到智能合约，不仅花费油费，而且不能即时取消。所以我们在Relay中增加了软取消功能，在满足软取消情况(比如订单未撮合或者未在撮合流程中)下，可以通过Relay取消订单，不消耗油费并且即时取消订单。
-账户 | Allowance | 代币授权，这里通常指的是用户授权给Loopring protocol，想要Loopring智能合约能够撮合用户订单，只有用户针对合约做授权操作后，Loopring智能合约才能够撮合用户订单。
-账户 | Balance | 用户资产余额，包含ETH余额和所有ERC20 Token余额。
-账户 | WETH | WETH是以太坊上锚定ETH的ERC20 Token，在没有任何额外费(除了一笔transaction油费)用情况下，永远可以和ETH等量交换，Loopring合约只支持ERC20 Token之间资产交换，并不支持ETH和ERC20 Token交换，所以在用户交易前，需要将ETH转换成WETH，同时授权Loopring合约使用WETH Token.
+订单 | powNonce | 订单提交工作量证明，为了防止订单子系统被spam，我们采用工作量证明的方式来限制过多的订单提交，powNonce会参与工作量证明算法的计算，订单通过算法校验后被提交到中继，中继接收到订单后会以相同的算法来校验nonce是否通过了工作量证明。
+订单 | 撮合 | 两个以上订单满足形成Loopring环路的条件，可形成环形成交，环形成交即Loopring的撮合。
+订单 | 环路 | 相比传统交易所订单两两互相成交的方式，Loopring可针对多笔订单串联形成环形成交队列，这个头尾相连的环形订单队列统称为环路。
+订单 | 软取消 | 在初期版本的钱包中，用户取消订单只能提交到智能合约，不仅花费油费，而且不能即时取消。所以我们在Relay中增加了软取消功能，在满足软取消情况(比如订单未撮合或者未在撮合流程中)下，可以通过Relay取消订单，不消耗油费并且能即时取消订单。
+账户 | Allowance | 代币授权，用户授权给Loopring protocol，只有用户对智能合约进行授权后，合约才有权去撮合用户的订单。
+账户 | Balance | 用户资产余额，ETH余额和所有ERC20 Token余额的总和。
+账户 | WETH | 以太坊上锚定ETH的ERC20 Token，由于路印智能合约只支持ERC20 Token之间的资产交换，而ETH并非ERC20 Token，所以在交易前需将ETH转换为WETH，同时对WETH进行代币授权，WETH与ETH之间为等量交换（除了一笔油费）。
 市场 | Fill | 成交信息，环路撮合后，智能合约发出的成交数据Event
 市场 | Depth | 市场深度
 市场 | Ticker | 24小时市场变化统计数据
@@ -81,11 +81,11 @@
 合约 | DelegateAddress | Delegate合约地址，订单池按照Delegate合约划分，不同Delegate地址的订单之间，不能互相撮合。
 通用 | Token | 即以太坊上代币，目前只支持完全符合ERC20标准的Token
 通用 | Transaction | 通常是指用户转账/授权/合约调用等以太坊交易操作，在Relay，我们对transaction进行了包装，包含用户订单撮合类型，同时包含所有以太坊交易操作类型，方便用户区分。
-通用 | Gas | 提交以太坊交易，需要指定GasPrice和GasLimit用来支付交易产生的费用，Loopring支持获取当前网络最佳GasPrice
+通用 | Gas | 提交一笔交易需要指定GasPrice和GasLimit，用来支付交易产生的费用，Loopring支持获取当前网络最佳GasPrice
 通用 | Nonce | 以用户钱包地址为单位，从0开始递增的整数，当前值等于用户提交成功的transaction总数，用户提交transaction需要提供nonce做校验，同一个nonce只能有一个transaction提交成功，由于Relay接入了Loopring众多的钱包版本（web/ios/android）, 同时有多个合作伙伴接入，所以提供了集中维护Nonce的功能，最大程度的提高transaction成功率。
-通用 | Miner | Loopring撮合服务，在订单池中发现环路，并提交到智能合约撮合。
-通用 | Decimal | ERC20 Token 单位精度，一般情况下订单里Token数量除以Decimal, 是实际数量，通常Decimal=1e18。
-通用 | Symbol | ERC20 Token简称，例如Loopring ERC20 Token, 是LRC。
+通用 | Miner | Loopring撮合服务，在订单池中发现环路，并提交到智能合约及时撮合。
+通用 | Decimal | ERC20 Token 单位精度，一般情况下订单的Token数量除以Decimal等于实际数量，通常Decimal=1e18。
+通用 | Symbol | Token简称，例如Loopring ERC20 Token成为“LRC”。
 
 ---
 
