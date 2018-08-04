@@ -47,16 +47,16 @@
 
 分类 | 名词 | 解释
 ------|------|------
-订单 | Order | 符合Loopring protocol格式的订单数据
-订单 | OrderHash | 订单的签名，即由订单部分字段做执行散列算法后生成的摘要
-订单 | Owner | 订单所有者，即用户钱包地址
-订单 | OrderType | 订单类型，Relay支持的两种订单订单类型 : market_order( 市场订单)，是整个交易所订单池共享的订单，可以被任何人成交; p2p_order(点对点订单)，是不包含钱包认证私钥的订单，只能够被授权共享了钱包认证私钥的用户才能撮合。
-订单 | WalletAddress | 提供订单的钱包分润地址，通常是钱包或者交易所产品研发团队的钱包地址，用来参与订单成功撮合后的利润分成，目前方案是，钱包会分取撮合利润的20%，撮合者(Miner)会分取撮合利润的80%。
-订单 | AuthAddr & AuthPrivateKey | 提交订单时，随机生成的公私钥对，AuthAddr用来参与订单的签名，AuthPrivateKey用来参与提交撮合时环路的签名，目的是为了防止订单或者环路被篡改，同时在点对点订单的场景，AuthPrivateKey在通过二维码只分享给特定用户的情况下，可以保护订单只被单独用户吃单。
-订单 | TokenS | 要出售的Token, 请参考支持的Token列表
-订单 | TokenB | 要买入的Token，请参考支持的Token列表
-订单 | AmountS | 要出售的Token数量
-订单 | AmountB | 要买入的Token数量
+订单 | Order | 符合Loopring protocol格式的订单数据。
+订单 | OrderHash | 订单的签名，由订单部分字段进行散列算法后生成的摘要。
+订单 | Owner | 订单所有者，即用户钱包地址。
+订单 | OrderType | 订单类型，Relay支持的两种订单订单类型 : market_order( 市场订单)，是整个交易所订单池共享的订单，可以被任何人成交;p2p_order(点对点订单)，是不包含钱包认证私钥的订单，只能够被授权共享了钱包认证私钥的用户才能撮合。
+订单 | WalletAddress | 钱包分润地址，通常是钱包或者交易所产品研发团队的钱包地址，用来参与订单成功撮合后的利润分成，目前方案是：钱包会分取撮合利润的20%，撮合者(Miner)会分取撮合利润的80%。
+订单 | AuthAddr & AuthPrivateKey | 用来防止订单或环路被篡改，提交订单时，AuthAddr用来给订单签名，而AuthPrivateKey则用来给待提交的环路签名，同时在p2p_order的场景，在通过二维码只分享给特定用户的情况下，AuthPrivateKey可以保护订单只被该特定用户成交。
+订单 | TokenS | 欲出售的Token, 请参考支持的Token列表（token.json）
+订单 | TokenB | 欲买入的Token，请参考支持的Token列表（token.json）
+订单 | AmountS | 欲出售的Token数量
+订单 | AmountB | 欲买入的Token数量
 订单 | ValidSince | 订单生效开始时间，表示单位为时间戳，如果当前时间小于ValidSince，订单是未生效状态。
 订单 | ValidUntil | 订单有效截止时间，表示单位为时间戳，超过后订单自动失效。
 订单 | LrcFee | 设置该笔订单撮合需要的LrcFee
