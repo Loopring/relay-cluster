@@ -1,6 +1,6 @@
 # Loopring Relay Docker部署文档
 
-为了方便合作伙伴部署分布式中继，我们会分别提供以下几个镜像(制作中)：
+为了方便合作伙伴部署分布式中继，我们将提供以下几个镜像(除relay-cluster外，其余镜像正在制作中)：
 
 * relay-cluster镜像
 * miner镜像
@@ -12,7 +12,7 @@
 
 目前官方提供relay-cluster镜像，最新版本：v1.5.0
 
-## 部署
+## relay-cluster部署
 * 获取docker镜像
 ```bash
 docker pull loopring/relay-cluster
