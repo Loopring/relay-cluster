@@ -238,11 +238,11 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 
 生产环境地址：https://relay1.loopring.io/ ，即：
 
-jsonrpc入口：https://relay1.loopring.io/rpc/v2
+* jsonrpc入口：https://relay1.loopring.io/rpc/v2
    
-socketio入口：https://relay1.loopring.io/socket.io
+* socketio入口：https://relay1.loopring.io/socket.io
    
-以太坊测试节点入口：https://relay1.loopring.io/eth
+* 以太坊测试节点入口：https://relay1.loopring.io/eth
 
 > 中继生产环境只支持https, 测试环境只支持http
 
