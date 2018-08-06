@@ -239,7 +239,7 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 4. 中继线上版本只支持https, 测试环境只支持http
 ---
 ## 如何部署中继
-Loopring基金会实现了两个版本的中继：standalone和cluster， 这里介绍standalone版本的编译和部署方法。这里的中继运行在full模式下。
+目前提供了两个版本的中继：standalone和cluster， 这里介绍standalone版本的编译和部署方法。这里的中继运行在full模式下。
 
 ### 代码编译
 中继使用golang语言开发，开发中继时使用的是版本1.9.2, 编译中继建议使用大版本1.9, go开发和编译环境的搭建，请自行google，
