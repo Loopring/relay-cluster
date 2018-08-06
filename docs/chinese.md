@@ -301,13 +301,13 @@ miner          - 以miner模式启动时，配置挖矿参数
 
 ### 微服务介绍
 
-#### relay-cluster
+* #### relay-cluster
 relay-cluster和之前单节点版本relay功能基本相同，为钱包和DEX应用提供后台服务，将原来在单节点版本relay中的撮合服务和以太坊解析服务剥离出去，就是目前relay-cluster提供的功能。
 
-#### miner
+* #### miner
 撮合服务，接收订单，发现环路，提交环路到以太坊网络，通过rpc服务于relay-cluster通信
 
-#### extractor
+* #### extractor
 以太坊解析服务，以太坊上发生的每一笔transaction，每一个event等，都是通过extractor解析，然后包装成事件，通过消息队列(目前是kafka)，提供给relay-cluster和miner使用
 
 ---
