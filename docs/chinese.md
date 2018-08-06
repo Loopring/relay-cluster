@@ -235,9 +235,7 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 
 ### 生产环境
 
-生产环境为官方中继。
-
-生产环境地址：https://relay1.loopring.io/ ，即：
+生产环境为官方中继，生产环境地址：https://relay1.loopring.io/ ，即：
 
 * jsonrpc入口：https://relay1.loopring.io/rpc/v2
    
