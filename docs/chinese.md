@@ -313,4 +313,4 @@ relay-cluster和之前单节点版本relay功能基本相同，为钱包和DEX�
 ---
 
 ## 获取帮助
-请访问路印协议官网：https://loopring.org ，获取联系方式并寻求帮助
+请访问Loopring官网：https://loopring.org ，获取联系方式并寻求帮助
