@@ -12,7 +12,7 @@
 
 目前官方提供relay-cluster镜像，最新版本：v1.5.0
 
-## relay-cluster部署
+## 部署relay-cluster
 * 获取docker镜像
 ```bash
 docker pull loopring/relay-cluster
