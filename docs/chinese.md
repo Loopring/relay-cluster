@@ -30,7 +30,7 @@
   * [测试环境](#测试环境)
 - [如何部署中继](#如何部署中继)
   * [对比旧版](#对比旧版)
-  * [开源代码](#开源代码)
+  * [github](#github)
   * [微服务介绍](#微服务介绍)
 - [获取帮助](#获取帮助)
 
@@ -271,8 +271,8 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 
 ---
 
-### 开源代码
-分布式中继包含以下几个github库：relay-cluster/miner/extractor/relay-lib, 简单介绍下各个库的作用：
+### github
+中继包含以下几个github库：relay-cluster/miner/extractor/relay-lib, 简单介绍下各个库的作用：
 * relay-cluster : 中继cluster版本，提供wallet和DEX后台服务
 * miner : 撮合服务
 * extractor : 以太坊解析服务
