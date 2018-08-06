@@ -70,7 +70,7 @@
 账户 | Allowance | 代币授权，用户授权给Loopring protocol，只有对智能合约进行授权后，合约才有权撮合用户的订单。
 账户 | Balance | 用户资产余额，ETH余额和所有ERC20 Token余额的总和。
 账户 | WETH | 以太坊上锚定ETH的ERC20 Token，由于路印智能合约只支持ERC20 Token之间的资产交换，而ETH并非ERC20 Token，所以在交易前需将ETH转换为WETH，同时对WETH进行代币授权，WETH与ETH之间为等量交换（除了一笔油费）。
-市场 | Fill | 成交信息，环路撮合后，智能合约发出的成交数据Event
+市场 | Fill | 成交信息，环路撮合后，由智能合约发出的成交数据Event
 市场 | Depth | 市场深度
 市场 | Ticker | 24小时市场变化统计数据
 市场 | Trend | 市场变化趋势信息，目前支持最小维度1Hr
