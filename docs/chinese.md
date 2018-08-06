@@ -179,7 +179,7 @@ Loopring撮合服务(Miner)通过内部RPC接口获取未完结的订单，寻�
 ---
 
 ### 交易所行情
-中继提供交易所必要的行情信息（包括深度/orderbook/最新成交/ticker/趋势图/kline等），同时集成了coinmarketcap全球行情，最近还将接入MyToken开放平台，获取并向用户展示更加全面的行情数据。
+中继向交易所提供一些必要的行情信息（包括深度/orderbook/最新成交/ticker/趋势图/kline等），同时集成了coinmarketcap全球行情，最近还将接入MyToken开放平台，获取并向用户展示更加全面的行情数据。
 
 ---
 ### 元信息管理
