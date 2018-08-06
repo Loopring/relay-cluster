@@ -263,7 +263,7 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 
 ---
 
-### github
+## github
 中继包含以下几个github库：relay-cluster/miner/extractor/relay-lib, 简单介绍下各个库的作用：
 * relay-cluster : 中继cluster版本，提供wallet和DEX后台服务
 * miner : 撮合服务
@@ -272,7 +272,7 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 
 ---
 
-### 配置文件
+## 配置文件
 中继包含两个配置文件：relay.toml和tokens.json, 前者是中继全局配置，后者是用来指定中继支持的Token列表和市场。
 relay.toml配置项较多，针对relay.toml中比较重要的不太容易理解配置项做如下说明：
 ```
@@ -291,7 +291,7 @@ miner          - 以miner模式启动时，配置挖矿参数
 
 ---
 
-### 微服务介绍
+## 微服务介绍
 
 * #### relay-cluster
 relay-cluster和之前单节点版本relay功能基本相同，为钱包和DEX应用提供后台服务，将原来在单节点版本relay中的撮合服务和以太坊解析服务剥离出去，就是目前relay-cluster提供的功能。
