@@ -249,7 +249,7 @@ tokens List         - 钱包配置的token列表，包含token详细信息，也
 ---
 
 ## 如何部署中继
-目前提供两种部署方式，请仔细阅读部署文档：[aws部署](deploy/deploy_index_cn.md)和[docker部署](relay_docker_cn.md)
+目前提供两种部署方式：[aws部署](deploy/deploy_index_cn.md)与[docker部署](relay_docker_cn.md)，请仔细阅读部署文档。
 
 分布式中继是一个完整的企业级分布式应用，虽然目前系统体量比较小，仅包含3个微服务，但同其他分布式应用一样，具有如下几个特点：
 
