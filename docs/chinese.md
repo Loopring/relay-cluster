@@ -80,7 +80,7 @@
 合约 | LoopringProtocolImpl | Loopring入口合约地址，伴随着合约升级，地址会有变化
 合约 | DelegateAddress | Delegate合约地址，订单池按照Delegate合约划分，不同Delegate地址的订单之间，不能互相撮合。
 通用 | Token | 即以太坊上代币，目前只支持完全符合ERC20标准的Token
-通用 | Transaction | 指用户转账/授权/合约调用等以太坊交易操作，在Relay中，对transaction进行了二次包装，包含用户订单撮合类型和所有以太坊交易操作类型，方便用户区分。
+通用 | Transaction | 指用户转账/授权/合约调用等以太坊交易操作，在Relay中，对transaction进行了封装，包含了用户订单撮合类型与所有以太坊交易操作类型，方便用户区分。
 通用 | Gas | 提交一笔交易需要指定GasPrice和GasLimit，用来支付交易产生的费用，Loopring支持获取当前网络最佳GasPrice
 通用 | Nonce | 以用户钱包地址为单位，从0开始递增的整数，当前值等于用户提交成功的transaction总数，用户提交transaction需要提供nonce做校验，同一个nonce只能有一个transaction提交成功，由于Relay接入了Loopring众多的钱包版本（web/ios/android）, 同时有多个合作伙伴接入，所以提供了集中维护Nonce的功能，最大程度的提高transaction成功率。
 通用 | Miner | Loopring撮合服务，在订单池中发现环路，并提交到智能合约进行撮合。
