@@ -21,12 +21,16 @@ package cache
 import (
 	"github.com/Loopring/relay-lib/cache"
 	"github.com/ethereum/go-ethereum/common"
+	"strings"
+	"github.com/Loopring/relay-lib/log"
 )
 
 // 注意:这里我们不对cache设置过期时间,如果设定过期时间,会导致event通知到ordermanager后,与订单无关的用户查询mysql,消耗太大
 
 const (
 	UserPendingOrderKeyPrefix = "om_pending_ordertx_"
+	// just for getting list
+	OrderSearchPreKey = "ORDER_"
 )
 
 func SetPendingOrder(owner common.Address, orderhash common.Hash) error {
@@ -77,4 +81,14 @@ func getMember(orderhash common.Hash) []byte {
 
 func setMember(bs []byte) common.Hash {
 	return common.HexToHash(string(bs))
+}
+
+func DelOrderCacheByOwner(owner common.Address) {
+	keys, _ := cache.Keys(strings.ToUpper(OrderSearchPreKey + "OWNER:" + owner.Hex() + "*"))
+	keyStrs := make([]string, len(keys))
+	for _, key := range keys {
+		log.Debugf("[clear cache] clear key: %s", string(key))
+		keyStrs = append(keyStrs, string(key))
+	}
+	cache.Dels(keyStrs)
 }

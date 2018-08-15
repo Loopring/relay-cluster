@@ -121,8 +121,10 @@ func (tm *TransactionManager) ForkProcess(input eventemitter.EventData) error {
 	if err := tm.db.RollBackTxEntity(from, to); err != nil {
 		log.Debugf("txmanager,process fork error:%s", err.Error())
 	}
-	if err := tm.db.RollBackTxView(from, to); err != nil {
+	if owners, err := tm.db.RollBackTxView(from, to); err != nil {
 		log.Debugf("txmanager,process fork error:%s", err.Error())
+	} else if owners != nil && len(owners) > 0 {
+		//cache.DelTxViewCacheByOwners(owners)
 	}
 	if err := cache.RollbackEntityCache(from, to); err != nil {
 		log.Debugf("txmanager,process cache rollback error:%s", err.Error())
@@ -428,8 +430,10 @@ func (tm *TransactionManager) processPendingTxWhileMined(tx *txtyp.TransactionEn
 		if err := tm.db.SetPendingTxEntityFailed(preHashList); err != nil {
 			log.Errorf("transaction manager,set pending tx entities:%s err:", err.Error())
 		}
-		if err := tm.db.SetPendingTxViewFailed(preHashList); err != nil {
+		if owners, err := tm.db.SetPendingTxViewFailed(preHashList); err != nil {
 			log.Errorf("transaction manager,set pending tx view:%s err:", err.Error())
+		} else if owners != nil && len(owners) > 0 {
+			cache.DelTxViewCacheByOwners(owners)
 		}
 	}
 
@@ -438,8 +442,10 @@ func (tm *TransactionManager) processPendingTxWhileMined(tx *txtyp.TransactionEn
 		if err := tm.db.DelPendingTxEntity(tx.Hash.Hex()); err != nil {
 			log.Errorf("transaction manager,delete pending tx entity:%s err:", tx.Hash.Hex(), err.Error())
 		}
-		if err := tm.db.DelPendingTxView(tx.Hash.Hex()); err != nil {
+		if owners, err := tm.db.DelPendingTxView(tx.Hash.Hex()); err != nil {
 			log.Errorf("transaction manager,delete pending tx view:%s err:", tx.Hash.Hex(), err.Error())
+		} else if owners != nil && len(owners) > 0 {
+			cache.DelTxViewCacheByOwners(owners)
 		}
 	}
 }
@@ -460,6 +466,8 @@ func (tm *TransactionManager) addView(tx *txtyp.TransactionView) error {
 	}
 
 	notify.NotifyTransactionView(tx)
+
+	cache.DelTxViewCacheByOwners([]string{item.Owner})
 
 	return nil
 }

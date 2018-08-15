@@ -21,6 +21,8 @@ package cache
 import (
 	"github.com/Loopring/relay-lib/cache"
 	"github.com/ethereum/go-ethereum/common"
+	"strings"
+	"github.com/Loopring/relay-lib/log"
 )
 
 // 该缓存模块用于处理fill数据
@@ -28,8 +30,9 @@ import (
 // 如果是普通用户,我们只需要处理fill,如果是miner我们需要只需要处理transfer
 
 const (
-	FillOwnerPrefix = "txm_fill_owner_"
-	FillOwnerTtl    = 864000 // todo 临时数据,只存储10分钟,系统性宕机后无法重启后丢失?
+	FillOwnerPrefix  = "txm_fill_owner_"
+	FillOwnerTtl     = 864000  // todo 临时数据,只存储10分钟,系统性宕机后无法重启后丢失?
+	FillSearchPreKey = "FILL_" // list cache
 )
 
 func SetFillOwnerCache(txhash common.Hash, owner common.Address) error {
@@ -46,4 +49,18 @@ func ExistFillOwnerCache(txhash common.Hash, owner common.Address) (bool, error)
 
 func generateFillOwnerKey(txhash common.Hash) string {
 	return FillOwnerPrefix + txhash.Hex()
+}
+
+func DelFillCacheByOwner(owners []string) {
+	keyStrs := make([]string, 0)
+	if owners != nil && len(owners) > 0 {
+		for _, owner := range owners {
+			keys, _ := cache.Keys(strings.ToUpper(FillSearchPreKey + "OWNER:" + owner + "*"))
+			for _, key := range keys {
+				log.Debugf("[clear cache] clear key: %s", string(key))
+				keyStrs = append(keyStrs, string(key))
+			}
+		}
+	}
+	cache.Dels(keyStrs)
 }
