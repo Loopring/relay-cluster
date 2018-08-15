@@ -27,6 +27,9 @@ import (
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+	"strconv"
+	"strings"
+	cache2 "github.com/Loopring/relay-cluster/txmanager/cache"
 )
 
 type OrderViewer interface {
@@ -92,11 +95,17 @@ func (om *OrderViewerImpl) GetOrders(query map[string]interface{}, statusList []
 	for _, s := range statusList {
 		sL = append(sL, int(s))
 	}
-	tmp, err := om.rds.OrderPageQuery(query, sL, pageIndex, pageSize)
 
-	if err != nil {
-		return pageRes, err
+	var tmp dao.PageResult
+	key := orderToKey(query, statusList, pageIndex, pageSize)
+	if err, get := cache.GetCacheOrders(key, &tmp); err != nil || !get {
+		tmp, err = om.rds.OrderPageQuery(query, sL, pageIndex, pageSize)
+		if err != nil {
+			return pageRes, err
+		}
+		cache.SaveCacheOrders(key, &tmp, 24*3600*7)
 	}
+
 	pageRes.PageIndex = tmp.PageIndex
 	pageRes.PageSize = tmp.PageSize
 	pageRes.Total = tmp.Total
@@ -110,6 +119,7 @@ func (om *OrderViewerImpl) GetOrders(query map[string]interface{}, statusList []
 		}
 		pageRes.Data = append(pageRes.Data, state)
 	}
+
 	return pageRes, nil
 }
 
@@ -164,7 +174,12 @@ func (om *OrderViewerImpl) GetOrdersByHashes(orders []common.Hash) (orderState [
 }
 
 func (om *OrderViewerImpl) FillsPageQuery(query map[string]interface{}, pageIndex, pageSize int) (result dao.PageResult, err error) {
-	return om.rds.FillsPageQuery(query, pageIndex, pageSize)
+	key := orderToKey(query, nil, pageIndex, pageSize)
+	if err, get := cache2.GetCacheFills(key, &result); err != nil || !get {
+		result, err = om.rds.FillsPageQuery(query, pageIndex, pageSize)
+		cache2.SaveCacheFills(key, &result, 24*3600*7)
+	}
+	return
 }
 
 func (om *OrderViewerImpl) GetLatestFills(query map[string]interface{}, limit int) (result []dao.FillEvent, err error) {
@@ -225,4 +240,31 @@ func (om *OrderViewerImpl) GetFrozenLRCFee(owner common.Address, statusSet []typ
 	}
 
 	return totalAmount, nil
+}
+
+func orderToKey(query map[string]interface{}, statusList []types.OrderStatus, pageIndex, pageSize int) (res string) {
+	keys := make([]string, 0)
+	mapKeys := []string{"owner", "delegate_address", "market", "side", "order_hash", "order_type", "ring_hash"}
+	for _, mk := range mapKeys {
+		if key, ok := query[mk]; ok {
+			keys = append(append(keys, mk), key.(string))
+		}
+	}
+	if statusList != nil && len(statusList) > 0 {
+		statusStr := ""
+		for _, s := range statusList {
+			statusStr += strconv.Itoa(int(s))
+		}
+		keys = append(append(keys, "status"), statusStr)
+	}
+	if pageIndex <= 0 {
+		pageIndex = 1
+	}
+
+	if pageSize <= 0 {
+		pageSize = 20
+	}
+	keys = append(append(keys, "index"), strconv.Itoa(pageIndex))
+	keys = append(append(keys, "size"), strconv.Itoa(pageSize))
+	return strings.ToUpper(strings.Join(keys, ":"))
 }
