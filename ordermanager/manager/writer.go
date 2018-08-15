@@ -26,6 +26,7 @@ import (
 	util "github.com/Loopring/relay-lib/marketutil"
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/Loopring/relay-cluster/ordermanager/cache"
 )
 
 func MinerOrders(delegate, tokenS, tokenB common.Address, length int, reservedTime, startBlockNumber, endBlockNumber int64, filterOrderHashLists ...*types.OrderDelayList) []*types.OrderState {
@@ -42,8 +43,10 @@ func MinerOrders(delegate, tokenS, tokenB common.Address, length int, reservedTi
 			orderHashes = append(orderHashes, hash.Hex())
 		}
 		if len(orderHashes) > 0 && orderDelay.DelayedCount != 0 {
-			if err = rds.MarkMinerOrders(orderHashes, orderDelay.DelayedCount); err != nil {
+			if err, owners := rds.MarkMinerOrders(orderHashes, orderDelay.DelayedCount); err != nil {
 				log.Debugf("order manager,provide orders for miner error:%s", err.Error())
+			} else if owners != nil && len(owners) > 0 {
+				cache.DelOrderCacheByOwner(owners)
 			}
 		}
 	}
@@ -70,7 +73,12 @@ func MinerOrders(delegate, tokenS, tokenB common.Address, length int, reservedTi
 }
 
 func UpdateBroadcastTimeByHash(hash common.Hash, bt int) error {
-	return rds.UpdateBroadcastTimeByHash(hash.Hex(), bt)
+	if err, owners := rds.UpdateBroadcastTimeByHash(hash.Hex(), bt); err != nil {
+		return err
+	} else if owners != nil && len(owners) > 0 {
+		cache.DelOrderCacheByOwner(owners)
+	}
+	return nil
 }
 
 func FlexCancelOrder(event *types.FlexCancelOrderEvent) error {
@@ -113,5 +121,6 @@ func FlexCancelOrder(event *types.FlexCancelOrderEvent) error {
 		return fmt.Errorf("no valid order exist")
 	}
 
+	cache.DelOrderCacheByOwner([]string{event.Owner.Hex()})
 	return nil
 }

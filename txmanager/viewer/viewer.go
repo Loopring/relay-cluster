@@ -25,6 +25,7 @@ import (
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
 	"strings"
+	"strconv"
 )
 
 var impl TransactionViewer
@@ -116,11 +117,14 @@ func (impl *TransactionViewerImpl) GetAllTransactions(ownerStr, symbolStr, statu
 	status := safeStatus(statusStr)
 	typ := safeType(typStr)
 
-	views, err := impl.db.GetTxViewByOwner(owner, symbol, status, typ, limit, offset)
-	if err != nil {
-		return list, ErrNonTransaction
+	var views []dao.TransactionView
+	key := strings.ToUpper(strings.Join([]string{"OWNER", owner, "STATUS", strconv.Itoa(int(status)), "SYMBOL", symbol, "TXTYPE", strconv.Itoa(int(typ)), "LIMIT", strconv.Itoa(limit), "OFFSET", strconv.Itoa(offset)}, ":"))
+	if err, get := cache.GetCacheTransactions(key, &views); err != nil || !get {
+		if views, err = impl.db.GetTxViewByOwner(owner, symbol, status, typ, limit, offset); err != nil {
+			return list, ErrNonTransaction
+		}
+		cache.SaveCacheTransactions(key, &views, 24*3600*7)
 	}
-
 	list = impl.assemble(views)
 
 	return list, nil

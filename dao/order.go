@@ -201,16 +201,15 @@ func (s *RdsService) GetOrdersByHashes(orderHashes []common.Hash) ([]Order, erro
 	return orders, err
 }
 
-func (s *RdsService) MarkMinerOrders(filterOrderhashs []string, blockNumber int64) error {
+func (s *RdsService) MarkMinerOrders(filterOrderhashs []string, blockNumber int64) (error, []string) {
+	var owners []string
 	if len(filterOrderhashs) == 0 {
-		return nil
+		return nil, owners
 	}
 
-	err := s.Db.Model(&Order{}).
-		Where("order_hash in (?)", filterOrderhashs).
-		Update("miner_block_mark", blockNumber).Error
+	s.Db.Model(&Order{}).Where("order_hash in (?)", filterOrderhashs).Pluck("DISTINCT owner", &owners)
 
-	return err
+	return s.Db.Model(&Order{}).Where("order_hash in (?)", filterOrderhashs).Update("miner_block_mark", blockNumber).Error, owners
 }
 
 func (s *RdsService) GetOrdersForMiner(protocol, tokenS, tokenB string, length int, validStatus []types.OrderStatus, reservedTime, startBlockNumber, endBlockNumber int64) ([]*Order, error) {
@@ -279,8 +278,8 @@ func (s *RdsService) GetCutoffPairOrders(owner, token1, token2 common.Address, c
 	return list, err
 }
 
-func (s *RdsService) SetCutOffOrders(orderHashList []common.Hash, blockNumber *big.Int) error {
-	var list []string
+func (s *RdsService) SetCutOffOrders(orderHashList []common.Hash, blockNumber *big.Int) (error, []string) {
+	var list, owners []string
 
 	items := map[string]interface{}{
 		"status":        uint8(types.ORDER_CUTOFF),
@@ -290,8 +289,9 @@ func (s *RdsService) SetCutOffOrders(orderHashList []common.Hash, blockNumber *b
 	for _, v := range orderHashList {
 		list = append(list, v.Hex())
 	}
-	err := s.Db.Model(&Order{}).Where("order_hash in (?)", list).Update(items).Error
-	return err
+
+	s.Db.Model(&Order{}).Where("order_hash in (?)", list).Pluck("DISTINCT owner", &owners)
+	return s.Db.Model(&Order{}).Where("order_hash in (?)", list).Update(items).Error, owners
 }
 
 func (s *RdsService) GetOrderBook(delegate, tokenS, tokenB common.Address, length int) ([]Order, error) {
@@ -447,11 +447,13 @@ func allContain(left []int, right []types.OrderStatus) bool {
 	return true
 }
 
-func (s *RdsService) UpdateBroadcastTimeByHash(hash string, bt int) error {
-	return s.Db.Model(&Order{}).Where("order_hash = ?", hash).Update("broadcast_time", bt).Error
+func (s *RdsService) UpdateBroadcastTimeByHash(hash string, bt int) (error, []string) {
+	var owners []string
+	s.Db.Model(&Order{}).Where("order_hash = ?", hash).Pluck("DISTINCT owner", &owners)
+	return s.Db.Model(&Order{}).Where("order_hash = ?", hash).Update("broadcast_time", bt).Error, owners
 }
 
-func (s *RdsService) UpdateOrderWhileFill(hash common.Hash, status types.OrderStatus, dealtAmountS, dealtAmountB, splitAmountS, splitAmountB, blockNumber *big.Int) error {
+func (s *RdsService) UpdateOrderWhileFill(hash common.Hash, status types.OrderStatus, dealtAmountS, dealtAmountB, splitAmountS, splitAmountB, blockNumber *big.Int) (error, int64) {
 	items := map[string]interface{}{
 		"status":         uint8(status),
 		"dealt_amount_s": dealtAmountS.String(),
@@ -460,25 +462,28 @@ func (s *RdsService) UpdateOrderWhileFill(hash common.Hash, status types.OrderSt
 		"split_amount_b": splitAmountB.String(),
 		"updated_block":  blockNumber.Int64(),
 	}
-	return s.Db.Model(&Order{}).Where("order_hash = ?", hash.Hex()).Update(items).Error
+	res := s.Db.Model(&Order{}).Where("order_hash = ?", hash.Hex()).Update(items)
+	return res.Error, res.RowsAffected
 }
 
-func (s *RdsService) UpdateOrderWhileCancel(hash common.Hash, status types.OrderStatus, cancelledAmountS, cancelledAmountB, blockNumber *big.Int) error {
+func (s *RdsService) UpdateOrderWhileCancel(hash common.Hash, status types.OrderStatus, cancelledAmountS, cancelledAmountB, blockNumber *big.Int) (error, int64) {
 	items := map[string]interface{}{
 		"status":             uint8(status),
 		"cancelled_amount_s": cancelledAmountS.String(),
 		"cancelled_amount_b": cancelledAmountB.String(),
 		"updated_block":      blockNumber.Int64(),
 	}
-	return s.Db.Model(&Order{}).Where("order_hash = ?", hash.Hex()).Update(items).Error
+	res := s.Db.Model(&Order{}).Where("order_hash = ?", hash.Hex()).Update(items)
+	return res.Error, res.RowsAffected
 }
 
-func (s *RdsService) UpdateOrderWhileRollbackCutoff(orderhash common.Hash, status types.OrderStatus, blockNumber *big.Int) error {
+func (s *RdsService) UpdateOrderWhileRollbackCutoff(orderhash common.Hash, status types.OrderStatus, blockNumber *big.Int) (error, int64) {
 	items := map[string]interface{}{
 		"status":        uint8(status),
 		"updated_block": blockNumber.Int64(),
 	}
-	return s.Db.Model(&Order{}).Where("order_hash = ?", orderhash.Hex()).Update(items).Error
+	res := s.Db.Model(&Order{}).Where("order_hash = ?", orderhash.Hex()).Update(items)
+	return res.Error, res.RowsAffected
 }
 
 func (s *RdsService) GetFrozenAmount(owner common.Address, token common.Address, statusSet []types.OrderStatus, delegateAddress common.Address) ([]Order, error) {
@@ -533,14 +538,15 @@ func (s *RdsService) GetLatestOrders(query map[string]interface{}, length int) (
 	return orders, err
 }
 
-func (s *RdsService) UpdateOrderStatus(orderhash common.Hash, status types.OrderStatus) error {
+func (s *RdsService) UpdateOrderStatus(orderhash common.Hash, status types.OrderStatus) (error, int64) {
 	now := time.Now().Unix()
 
-	return s.Db.Model(&Order{}).
+	res := s.Db.Model(&Order{}).
 		Where("order_hash=?", orderhash.Hex()).
 		Where("valid_since < ?", now).
 		Where("valid_until >= ? ", now).
-		Update("status", status).Error
+		Update("status", status)
+	return res.Error, res.RowsAffected
 }
 
 func (s *RdsService) FlexCancelOrderByHash(owner common.Address, orderhash common.Hash, validStatus []types.OrderStatus, status types.OrderStatus) int64 {
