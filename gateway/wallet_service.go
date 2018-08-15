@@ -702,6 +702,7 @@ func (w *WalletServiceImpl) GetOrdersByHashes(query OrderQuery) (order []OrderJs
 
 func (w *WalletServiceImpl) SubmitRingForP2P(p2pRing P2PRingRequest) (res string, err error) {
 
+	log.Info("p2pOrder code line 705:" + p2pRing.RawTx + p2pRing.TakerOrderHash + p2pRing.MakerOrderHash)
 	maker, err := w.orderViewer.GetOrderByHash(common.HexToHash(p2pRing.MakerOrderHash))
 	if err != nil {
 		return res, errors.New(P2P_50001)
@@ -731,15 +732,20 @@ func (w *WalletServiceImpl) SubmitRingForP2P(p2pRing P2PRingRequest) (res string
 		//return res, errors.New("It's dusty order")
 		return res, errors.New(P2P_50004)
 	}
-
+	log.Info("p2pOrder code line 735:" + p2pRing.RawTx + p2pRing.TakerOrderHash + p2pRing.MakerOrderHash)
 	remainedAmountS, _ := maker.RemainedAmount()
+	log.Info("p2pOrder code line 737:" + remainedAmountS.String())
 	if pendingAmountB, err := manager.GetP2PPendingAmount(maker.RawOrder.Hash.Hex()); nil != err {
+		log.Info("p2pOrder code line 739:" + err.Error())
 		return res, err
 	} else {
+		log.Info("p2pOrder code line 742:" + pendingAmountB.String())
 		if pendingAmountB.Cmp(remainedAmountS) >= 0 {
 			//return res, errors.New("maker's remainedAmount is not enough")
+			log.Info("p2pOrder code line 745:")
 			return res, errors.New(P2P_50004)
 		}
+		log.Info("p2pOrder code line 747:")
 	}
 
 	var txHashRst string
@@ -747,12 +753,12 @@ func (w *WalletServiceImpl) SubmitRingForP2P(p2pRing P2PRingRequest) (res string
 	if err != nil {
 		return res, err
 	}
-
+	log.Info("p2pOrder code line 756:")
 	err = manager.SaveP2POrderRelation(taker.RawOrder.Owner.Hex(), taker.RawOrder.Hash.Hex(), maker.RawOrder.Owner.Hex(), maker.RawOrder.Hash.Hex(), txHashRst, taker.RawOrder.AmountB.String(), maker.RawOrder.ValidUntil.String())
 	if err != nil {
 		return res, errors.New(SYS_10001)
 	}
-
+	log.Info("p2pOrder code line 761:")
 	return txHashRst, nil
 }
 
