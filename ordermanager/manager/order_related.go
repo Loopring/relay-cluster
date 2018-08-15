@@ -28,6 +28,8 @@ import (
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
+	"github.com/Loopring/relay-cluster/ordermanager/cache"
+	cache2 "github.com/Loopring/relay-cluster/txmanager/cache"
 )
 
 // 所有来自gateway的订单都是新订单
@@ -42,6 +44,8 @@ func HandleGatewayOrder(state *types.OrderState) error {
 	}
 
 	log.Debugf("order manager,handle gateway order,order.hash:%s amountS:%s", state.RawOrder.Hash.Hex(), state.RawOrder.AmountS.String())
+
+	cache.DelOrderCacheByOwner(state.RawOrder.Owner)
 
 	return notify.NotifyOrderUpdate(state)
 }
@@ -129,6 +133,8 @@ func HandleOrderFilledEvent(event *types.OrderFilledEvent) error {
 		return err
 	}
 
+	cache2.DelFillCacheByOwner([]string{state.RawOrder.Owner.Hex()})
+
 	// judge order status
 	if omcm.IsInvalidFillStatus(state.Status) {
 		return fmt.Errorf("order manager fillHandler, tx:%s, fillIndex:%s, orderhash:%s, err:order status(%d) invalid", event.TxHash.Hex(), event.FillIndex.String(), event.OrderHash.Hex(), state.Status)
@@ -148,8 +154,10 @@ func HandleOrderFilledEvent(event *types.OrderFilledEvent) error {
 	if err := model.ConvertDown(state); err != nil {
 		return err
 	}
-	if err := rds.UpdateOrderWhileFill(state.RawOrder.Hash, state.Status, state.DealtAmountS, state.DealtAmountB, state.SplitAmountS, state.SplitAmountB, state.UpdatedBlock); err != nil {
+	if err, rows := rds.UpdateOrderWhileFill(state.RawOrder.Hash, state.Status, state.DealtAmountS, state.DealtAmountB, state.SplitAmountS, state.SplitAmountB, state.UpdatedBlock); err != nil {
 		return err
+	} else if rows > 0 {
+		cache.DelOrderCacheByOwner(state.RawOrder.Owner)
 	}
 
 	// update orderTx
@@ -227,8 +235,10 @@ func HandleOrderCancelledEvent(event *types.OrderCancelledEvent) error {
 	if err := model.ConvertDown(state); err != nil {
 		return err
 	}
-	if err := rds.UpdateOrderWhileCancel(state.RawOrder.Hash, state.Status, state.CancelledAmountS, state.CancelledAmountB, state.UpdatedBlock); err != nil {
+	if err, rows := rds.UpdateOrderWhileCancel(state.RawOrder.Hash, state.Status, state.CancelledAmountS, state.CancelledAmountB, state.UpdatedBlock); err != nil {
 		return err
+	} else if rows > 0 {
+		cache.DelOrderCacheByOwner(state.RawOrder.Owner)
 	}
 
 	// process pending order status
