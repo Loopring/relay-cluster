@@ -195,7 +195,12 @@ func (handler *OrderTxHandler) setOrderStatus(list []omtyp.OrderTx) error {
 			return nil
 		}
 		SettleOrderStatus(state, false)
-		return rds.UpdateOrderStatus(event.OrderHash, state.Status)
+		if err, rows := rds.UpdateOrderStatus(event.OrderHash, state.Status); err != nil {
+			return err
+		} else if rows > 0 {
+			cache.DelOrderCacheByOwner(state.RawOrder.Owner)
+			return nil
+		}
 	}
 
 	// order owner cancelling/cutoffing
@@ -204,7 +209,12 @@ func (handler *OrderTxHandler) setOrderStatus(list []omtyp.OrderTx) error {
 			return nil
 		}
 		state.Status = list[0].OrderStatus
-		return rds.UpdateOrderStatus(event.OrderHash, state.Status)
+		if err, rows := rds.UpdateOrderStatus(event.OrderHash, state.Status); err != nil {
+			return err
+		} else if rows > 0 {
+			cache.DelOrderCacheByOwner(state.RawOrder.Owner)
+			return nil
+		}
 	}
 
 	// miner submit ring pending
@@ -212,7 +222,12 @@ func (handler *OrderTxHandler) setOrderStatus(list []omtyp.OrderTx) error {
 		if omcm.IsPendingStatus(state.Status) {
 			return nil
 		}
-		return rds.UpdateOrderStatus(event.OrderHash, list[0].OrderStatus)
+		if err, rows := rds.UpdateOrderStatus(event.OrderHash, list[0].OrderStatus); err != nil {
+			return err
+		} else if rows > 0 {
+			cache.DelOrderCacheByOwner(state.RawOrder.Owner)
+			return nil
+		}
 	}
 
 	return nil

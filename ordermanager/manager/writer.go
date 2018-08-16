@@ -26,6 +26,7 @@ import (
 	util "github.com/Loopring/relay-lib/marketutil"
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/Loopring/relay-cluster/ordermanager/cache"
 )
 
 func MinerOrders(delegate, tokenS, tokenB common.Address, length int, reservedTime, startBlockNumber, endBlockNumber int64, filterOrderHashLists ...*types.OrderDelayList) []*types.OrderState {
@@ -113,5 +114,6 @@ func FlexCancelOrder(event *types.FlexCancelOrderEvent) error {
 		return fmt.Errorf("no valid order exist")
 	}
 
+	cache.DelOrderCacheByOwner(event.Owner)
 	return nil
 }

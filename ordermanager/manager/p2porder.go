@@ -50,7 +50,7 @@ func init() {
 }
 
 func SaveP2POrderRelation(takerOwner, taker, makerOwner, maker, txHash, pendingAmount, validUntil string) error {
-
+	log.Info("p2pOrder code line 53")
 	takerOwner = strings.ToLower(takerOwner)
 	taker = strings.ToLower(taker)
 	makerOwner = strings.ToLower(makerOwner)
@@ -60,12 +60,14 @@ func SaveP2POrderRelation(takerOwner, taker, makerOwner, maker, txHash, pendingA
 	untilTime, _ := strconv.ParseInt(validUntil, 10, 64)
 	nowTime := time.Now().Unix()
 	takerExpiredTime := untilTime - nowTime
+	log.Info("p2pOrder code line 63")
 	cache.ZAdd(p2pTakerPreKey+maker, takerExpiredTime, []byte(strconv.FormatInt(nowTime, 10)), []byte(txHash+splitMark+pendingAmount))
-
+	log.Info("p2pOrder code line 65")
 	//save txhash,maker,taker relations
 	p2pOrderRelationStr, _ := GetP2pOrderRelation(maker, taker, txHash, pendingAmount)
+	log.Info("p2pOrder code line 68:" + string(p2pOrderRelationStr))
 	cache.Set(p2pRelationPreKey+txHash, p2pOrderRelationStr, takerExpiredTime)
-
+	log.Info("p2pOrder code line 70")
 	return nil
 }
 

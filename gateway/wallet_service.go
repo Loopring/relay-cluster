@@ -48,6 +48,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	cache2 "github.com/Loopring/relay-cluster/ordermanager/cache"
+	cache3 "github.com/Loopring/relay-cluster/txmanager/cache"
 )
 
 const DefaultCapCurrency = "CNY"
@@ -627,19 +629,50 @@ func (w *WalletServiceImpl) SubmitOrder(order *types.OrderJsonRequest) (res stri
 
 func (w *WalletServiceImpl) GetOrders(query *OrderQuery) (res PageResult, err error) {
 	orderQuery, statusList, pi, ps := convertFromQuery(query)
+
+	// get from cache
+	key := cache2.OrderSearchPreKey + orderToKey(orderQuery, statusList, pi, ps)
+	if ordersByte, err := cache.Get(key); err == nil && len(ordersByte) > 0 {
+		json.Unmarshal(ordersByte, &res)
+		log.Debugf("[GetOrders Cache] from cache key: %s", key)
+		return res, nil
+	}
+
+	// get from db
 	src, err := w.orderViewer.GetOrders(orderQuery, statusList, pi, ps)
 	if err != nil {
 		log.Info("query order error : " + err.Error())
 	}
 
-	rst := PageResult{Total: src.Total, PageIndex: src.PageIndex, PageSize: src.PageSize, Data: make([]interface{}, 0)}
+	res = PageResult{Total: src.Total, PageIndex: src.PageIndex, PageSize: src.PageSize, Data: make([]interface{}, 0)}
 
 	for _, d := range src.Data {
 		o := d.(types.OrderState)
-		rst.Data = append(rst.Data, orderStateToJson(o))
+		res.Data = append(res.Data, orderStateToJson(o))
 	}
-	return rst, err
+
+	// save cache
+	value, _ := json.Marshal(res)
+	log.Debugf("[GetOrders Cache] save cache key: %s", key)
+	cache.Set(key, value, 3600*24*7)
+
+	return res, err
 }
+
+//func (w *WalletServiceImpl) Clear(owner SingleOwner) {
+//	cache2.DelOrderCacheByOwner(common.HexToAddress(owner.Owner))
+//	cache3.DelFillCacheByOwner([]string{owner.Owner})
+//	cache3.DelTxViewCacheByOwners([]string{owner.Owner})
+//}
+//
+//func (w *WalletServiceImpl) ShowCache(owner SingleOwner) (res []string) {
+//	keys, _ := cache.Keys(strings.ToUpper("*OWNER:" + owner.Owner + "*"))
+//	for _, key := range keys {
+//		log.Debugf(string(key))
+//		res = append(res, string(key))
+//	}
+//	return res
+//}
 
 // 查询p2p订单, 订单类型固定, market不限
 //func (w *WalletServiceImpl) GetP2pOrders(query *OrderQuery) (res PageResult, err error) {
@@ -702,6 +735,7 @@ func (w *WalletServiceImpl) GetOrdersByHashes(query OrderQuery) (order []OrderJs
 
 func (w *WalletServiceImpl) SubmitRingForP2P(p2pRing P2PRingRequest) (res string, err error) {
 
+	log.Info("p2pOrder code line 705:" + p2pRing.RawTx + "," + p2pRing.TakerOrderHash + "," + p2pRing.MakerOrderHash)
 	maker, err := w.orderViewer.GetOrderByHash(common.HexToHash(p2pRing.MakerOrderHash))
 	if err != nil {
 		return res, errors.New(P2P_50001)
@@ -731,15 +765,20 @@ func (w *WalletServiceImpl) SubmitRingForP2P(p2pRing P2PRingRequest) (res string
 		//return res, errors.New("It's dusty order")
 		return res, errors.New(P2P_50004)
 	}
-
+	log.Info("p2pOrder code line 735")
 	remainedAmountS, _ := maker.RemainedAmount()
+	log.Info("p2pOrder code line 737:" + remainedAmountS.String())
 	if pendingAmountB, err := manager.GetP2PPendingAmount(maker.RawOrder.Hash.Hex()); nil != err {
+		log.Info("p2pOrder code line 739:" + err.Error())
 		return res, err
 	} else {
+		log.Info("p2pOrder code line 742:" + pendingAmountB.String())
 		if pendingAmountB.Cmp(remainedAmountS) >= 0 {
 			//return res, errors.New("maker's remainedAmount is not enough")
+			log.Info("p2pOrder code line 745")
 			return res, errors.New(P2P_50004)
 		}
+		log.Info("p2pOrder code line 747")
 	}
 
 	var txHashRst string
@@ -747,12 +786,12 @@ func (w *WalletServiceImpl) SubmitRingForP2P(p2pRing P2PRingRequest) (res string
 	if err != nil {
 		return res, err
 	}
-
+	log.Info("p2pOrder code line 756")
 	err = manager.SaveP2POrderRelation(taker.RawOrder.Owner.Hex(), taker.RawOrder.Hash.Hex(), maker.RawOrder.Owner.Hex(), maker.RawOrder.Hash.Hex(), txHashRst, taker.RawOrder.AmountB.String(), maker.RawOrder.ValidUntil.String())
 	if err != nil {
 		return res, errors.New(SYS_10001)
 	}
-
+	log.Info("p2pOrder code line 761")
 	return txHashRst, nil
 }
 
@@ -869,16 +908,26 @@ func (w *WalletServiceImpl) getInnerOrderBook(query DepthQuery, defaultDepthLeng
 	return asks, bids, err
 }
 
-func (w *WalletServiceImpl) GetFills(query FillQuery) (dao.PageResult, error) {
-	res, err := w.orderViewer.FillsPageQuery(fillQueryToMap(query))
+func (w *WalletServiceImpl) GetFills(query FillQuery) (res dao.PageResult, err error) {
+	fillQuery, pi, ps := fillQueryToMap(query)
 
+	// get from cache
+	key := cache3.FillSearchPreKey + orderToKey(fillQuery, nil, pi, ps)
+	if fillByte, err := cache.Get(key); err == nil && len(fillByte) > 0 {
+		json.Unmarshal(fillByte, &res)
+		log.Debugf("[GetFills Cache] from cache key: %s", key)
+		return res, nil
+	}
+
+	// get from db
+	src, err := w.orderViewer.FillsPageQuery(fillQuery, pi, ps)
 	if err != nil {
 		return dao.PageResult{}, nil
 	}
 
-	result := dao.PageResult{PageIndex: res.PageIndex, PageSize: res.PageSize, Total: res.Total, Data: make([]interface{}, 0)}
+	res = dao.PageResult{PageIndex: src.PageIndex, PageSize: src.PageSize, Total: src.Total, Data: make([]interface{}, 0)}
 
-	for _, f := range res.Data {
+	for _, f := range src.Data {
 		fill := f.(dao.FillEvent)
 		//if util.IsBuy(fill.TokenB) {
 		//	fill.Side = "buy"
@@ -888,9 +937,14 @@ func (w *WalletServiceImpl) GetFills(query FillQuery) (dao.PageResult, error) {
 		fill.TokenS = util.AddressToAlias(fill.TokenS)
 		fill.TokenB = util.AddressToAlias(fill.TokenB)
 
-		result.Data = append(result.Data, fill)
+		res.Data = append(res.Data, fill)
 	}
-	return result, nil
+
+	// save cache
+	value, _ := json.Marshal(res)
+	log.Debugf("[GetFills Cache] save cache key: %s", key)
+	cache.Set(key, value, 3600*24*7)
+	return res, nil
 }
 
 func (w *WalletServiceImpl) GetLatestFills(query FillQuery) ([]LatestFill, error) {
@@ -1159,6 +1213,16 @@ func (w *WalletServiceImpl) GetTransactions(query TransactionQuery) (PageResult,
 
 	rst.Data = make([]interface{}, 0)
 	rst.PageIndex, rst.PageSize, limit, offset = pagination(query.PageIndex, query.PageSize)
+
+	// get from cache
+	key := strings.ToUpper(cache3.TxViewSearchPreKey + strings.Join([]string{"OWNER", query.Owner, "STATUS", strconv.Itoa(int(types.StrToTxStatus(query.Status))),
+		"SYMBOL", strconv.Itoa(int(txtyp.StrToTxType(query.Symbol))), "TXTYPE", query.TxType, "INDEX", strconv.Itoa(rst.PageIndex), "SIZE", strconv.Itoa(rst.PageSize)}, ":"))
+	if txsByte, err := cache.Get(key); err == nil && len(txsByte) > 0 {
+		json.Unmarshal(txsByte, &rst)
+		log.Debugf("[GetTransactions Cache] from cache key: %s", key)
+		return rst, nil
+	}
+
 	rst.Total, err = txmanager.GetAllTransactionCount(query.Owner, query.Symbol, query.Status, query.TxType)
 	if err != nil {
 		return rst, err
@@ -1171,6 +1235,11 @@ func (w *WalletServiceImpl) GetTransactions(query TransactionQuery) (PageResult,
 	if err != nil {
 		return rst, err
 	}
+
+	// save cache
+	value, _ := json.Marshal(rst)
+	log.Debugf("[GetTransactions Cache] save cache key: %s", key)
+	cache.Set(key, value, 3600*24*7)
 
 	return rst, nil
 }
@@ -1939,4 +2008,31 @@ func verifySign(sign SignInfo) (bool, error) {
 			return false, errors.New("sign address not matched")
 		}
 	}
+}
+
+func orderToKey(query map[string]interface{}, statusList []types.OrderStatus, pageIndex, pageSize int) (res string) {
+	keys := make([]string, 0)
+	mapKeys := []string{"owner", "delegate_address", "market", "side", "order_hash", "order_type", "ring_hash"}
+	for _, mk := range mapKeys {
+		if key, ok := query[mk]; ok {
+			keys = append(append(keys, mk), key.(string))
+		}
+	}
+	if statusList != nil && len(statusList) > 0 {
+		statusStr := ""
+		for _, s := range statusList {
+			statusStr += strconv.Itoa(int(s))
+		}
+		keys = append(append(keys, "status"), statusStr)
+	}
+	if pageIndex <= 0 {
+		pageIndex = 1
+	}
+
+	if pageSize <= 0 {
+		pageSize = 20
+	}
+	keys = append(append(keys, "index"), strconv.Itoa(pageIndex))
+	keys = append(append(keys, "size"), strconv.Itoa(pageSize))
+	return strings.ToUpper(strings.Join(keys, ":"))
 }
