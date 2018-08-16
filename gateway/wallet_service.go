@@ -641,6 +641,25 @@ func (w *WalletServiceImpl) GetOrders(query *OrderQuery) (res PageResult, err er
 	return rst, err
 }
 
+//func (w *WalletServiceImpl) Clear(owner SingleOwner) {
+//	cache2.DelOrderCacheByOwner([]string{owner.Owner})
+//	cache3.DelFillCacheByOwner([]string{owner.Owner})
+//	cache3.DelTxViewCacheByOwners([]string{owner.Owner})
+//	keys, _ := cache.Keys("*")
+//	for key := range keys {
+//		cache.Del(string(key))
+//	}
+//}
+//
+//func (w *WalletServiceImpl) ShowCache(owner SingleOwner) (res []string) {
+//	keys, _ := cache.Keys(strings.ToUpper("*OWNER:" + owner.Owner + "*"))
+//	for _, key := range keys {
+//		log.Debugf(string(key))
+//		res = append(res, string(key))
+//	}
+//	return res
+//}
+
 // 查询p2p订单, 订单类型固定, market不限
 //func (w *WalletServiceImpl) GetP2pOrders(query *OrderQuery) (res PageResult, err error) {
 //	orderQuery, statusList, pi, ps := convertFromQuery(query)

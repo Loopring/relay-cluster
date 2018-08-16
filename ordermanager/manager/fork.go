@@ -24,6 +24,8 @@ import (
 	"github.com/Loopring/relay-lib/types"
 	"math/big"
 	"sort"
+	"github.com/Loopring/relay-cluster/ordermanager/cache"
+	cache2 "github.com/Loopring/relay-cluster/txmanager/cache"
 )
 
 type ForkProcessor struct{}
@@ -98,8 +100,10 @@ func (p *ForkProcessor) RollBackSingleFill(evt *types.OrderFilledEvent) error {
 
 	// update rds.Order
 	model.ConvertDown(state)
-	if err := rds.UpdateOrderWhileFill(state.RawOrder.Hash, state.Status, state.DealtAmountS, state.DealtAmountB, state.SplitAmountS, state.SplitAmountB, state.UpdatedBlock); err != nil {
+	if err, rows := rds.UpdateOrderWhileFill(state.RawOrder.Hash, state.Status, state.DealtAmountS, state.DealtAmountB, state.SplitAmountS, state.SplitAmountB, state.UpdatedBlock); err != nil {
 		return err
+	} else if rows > 0 {
+		cache.DelOrderCacheByOwner([]string{state.RawOrder.Owner.Hex()})
 	}
 
 	return nil
@@ -130,8 +134,10 @@ func (p *ForkProcessor) RollBackSingleCancel(evt *types.OrderCancelledEvent) err
 
 	// update rds.Order
 	model.ConvertDown(state)
-	if err := rds.UpdateOrderWhileCancel(state.RawOrder.Hash, state.Status, state.CancelledAmountS, state.CancelledAmountB, state.UpdatedBlock); err != nil {
+	if err, rows := rds.UpdateOrderWhileCancel(state.RawOrder.Hash, state.Status, state.CancelledAmountS, state.CancelledAmountB, state.UpdatedBlock); err != nil {
 		return fmt.Errorf("fork cancel event,error:%s", err.Error())
+	} else if rows > 0 {
+		cache.DelOrderCacheByOwner([]string{state.RawOrder.Owner.Hex()})
 	}
 
 	return nil
@@ -155,8 +161,10 @@ func (p *ForkProcessor) RollBackSingleCutoff(evt *types.CutoffEvent) error {
 		// update order status
 		SettleOrderStatus(state, false)
 
-		if err := rds.UpdateOrderWhileRollbackCutoff(orderhash, state.Status, evt.BlockNumber); err != nil {
+		if err, rows := rds.UpdateOrderWhileRollbackCutoff(orderhash, state.Status, evt.BlockNumber); err != nil {
 			return fmt.Errorf("fork cutoff event,error:%s", err.Error())
+		} else if rows > 0 {
+			cache.DelOrderCacheByOwner([]string{state.RawOrder.Owner.Hex()})
 		}
 
 		log.Debugf("fork cutoff event,order:%s", orderhash.Hex())
@@ -184,8 +192,10 @@ func (p *ForkProcessor) RollBackSingleCutoffPair(evt *types.CutoffPairEvent) err
 		// 在ordermanager 已完成的订单不会再更新,因此,cutoff事件发生之前,从钱包的角度来看只会有fillEvent,默认cancel取消所有的量
 		SettleOrderStatus(state, false)
 
-		if err := rds.UpdateOrderWhileRollbackCutoff(orderhash, state.Status, evt.BlockNumber); err != nil {
+		if err, rows := rds.UpdateOrderWhileRollbackCutoff(orderhash, state.Status, evt.BlockNumber); err != nil {
 			return fmt.Errorf("fork cutoffPair event,error:%s", err.Error())
+		} else if rows > 0 {
+			cache.DelOrderCacheByOwner([]string{state.RawOrder.Owner.Hex()})
 		}
 
 		log.Debugf("fork cutoff pair event,order:%s", orderhash.Hex())
@@ -198,8 +208,10 @@ func (p *ForkProcessor) MarkForkEvents(from, to int64) error {
 	if err := rds.RollBackRingMined(from, to); err != nil {
 		return fmt.Errorf("fork rollback ringmined events error:%s", err.Error())
 	}
-	if err := rds.RollBackFill(from, to); err != nil {
+	if err, owners := rds.RollBackFill(from, to); err != nil {
 		return fmt.Errorf("fork rollback fill events error:%s", err.Error())
+	} else if owners != nil && len(owners) > 0 {
+		cache2.DelFillCacheByOwner(owners)
 	}
 	if err := rds.RollBackCancel(from, to); err != nil {
 		return fmt.Errorf("fork rollback cancel events error:%s", err.Error())
