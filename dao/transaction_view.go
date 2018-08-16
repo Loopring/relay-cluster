@@ -80,23 +80,29 @@ func (tx *TransactionView) ConvertUp(dst *txtyp.TransactionView) error {
 //////////// write related
 
 // 更新交易发起者相同nonce下tx为failed
-func (s *RdsService) SetPendingTxViewFailed(hashlist []string) error {
-	err := s.Db.Model(&TransactionView{}).
+func (s *RdsService) SetPendingTxViewFailed(hashlist []string) ([]string, error) {
+	var owners []string
+	s.Db.Model(&TransactionView{}).
+		Where("tx_hash in (?)", hashlist).
+		Where("status=?", types.TX_STATUS_PENDING).
+		Where("fork=?", false).Pluck("DISTINCT owner", &owners)
+	res := s.Db.Model(&TransactionView{}).
 		Where("tx_hash in (?)", hashlist).
 		Where("status=?", types.TX_STATUS_PENDING).
 		Where("fork=?", false).
-		Update("status", types.TX_STATUS_FAILED).Error
-
-	return err
+		Update("status", types.TX_STATUS_FAILED)
+	return owners, res.Error
 }
 
 // 根据hash删除pending tx
-func (s *RdsService) DelPendingTxView(hash string) error {
+func (s *RdsService) DelPendingTxView(hash string) ([]string, error) {
+	var owners []string
+	s.Db.Where("tx_hash=?", hash).Where("status=?", types.TX_STATUS_PENDING).Where("fork=?", false).Pluck("DISTINCT owner", &owners)
 	err := s.Db.Where("tx_hash=?", hash).
 		Where("status=?", types.TX_STATUS_PENDING).
 		Where("fork=?", false).
 		Delete(&TransactionView{}).Error
-	return err
+	return owners, err
 }
 
 //////////// read related
@@ -143,8 +149,10 @@ func (s *RdsService) GetTxViewByOwner(owner string, symbol string, status types.
 	return txs, err
 }
 
-func (s *RdsService) RollBackTxView(from, to int64) error {
-	return s.Db.Model(&TransactionView{}).Where("block_number > ? and block_number <= ?", from, to).Update("fork", true).Error
+func (s *RdsService) RollBackTxView(from, to int64) ([]string, error) {
+	var owners []string
+	s.Db.Model(&TransactionView{}).Where("block_number > ? and block_number <= ?", from, to).Pluck("DISTINCT owner", &owners)
+	return owners, s.Db.Model(&TransactionView{}).Where("block_number > ? and block_number <= ?", from, to).Update("fork", true).Error
 }
 
 func assembleTxViewQuery(owner, symbol string, status types.TxStatus, typ txtyp.TxType) map[string]interface{} {
