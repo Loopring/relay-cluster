@@ -132,3 +132,9 @@ title = "miner"
 [cloud_watch]
     enabled = false
     region = ""
+
+[order_difficulty]
+    base_difficulty = "0x0000000000000000000000000000000000000000000000000000000000000010"
+    threshold = 20
+    cal_count = 100
+    duration = 2

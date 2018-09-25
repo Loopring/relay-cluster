@@ -1114,6 +1114,12 @@
 			"revisionTime": "2018-06-28T04:47:44Z"
 		},
 		{
+			"checksumSHA1": "db1fjQUFM01O5HhI1zzREmB9ARQ=",
+			"path": "gonum.org/v1/gonum/stat",
+			"revision": "d7342e68fbbe64d7dbbdc0feb4ecf60500444cdc",
+			"revisionTime": "2017-08-28T20:52:35Z"
+		},
+		{
 			"checksumSHA1": "AvVpgwhxhJgjoSledwDtYrEKVE4=",
 			"origin": "github.com/Loopring/relay-lib/vendor/google.golang.org/genproto/googleapis/rpc/status",
 			"path": "google.golang.org/genproto/googleapis/rpc/status",

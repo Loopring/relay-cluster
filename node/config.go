@@ -25,6 +25,7 @@ import (
 
 	"github.com/Loopring/relay-cluster/accountmanager"
 	"github.com/Loopring/relay-cluster/gateway"
+	"github.com/Loopring/relay-cluster/gateway/order_difficulty"
 	"github.com/Loopring/relay-cluster/market"
 	ordermanager "github.com/Loopring/relay-cluster/ordermanager/common"
 	"github.com/Loopring/relay-cluster/usermanager"
@@ -84,6 +85,7 @@ type GlobalConfig struct {
 	AccountManager   accountmanager.AccountManagerOptions
 	MyToken          market.MyTokenConfig
 	CloudWatch       cloudwatch.CloudWatchConfig
+	OrderDifficulty  order_difficulty.OrderDifficultyConfig
 }
 
 func Validator(cv reflect.Value) (bool, error) {

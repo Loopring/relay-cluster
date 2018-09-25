@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Loopring/relay-cluster/accountmanager"
+	"github.com/Loopring/relay-cluster/gateway/order_difficulty"
 	"github.com/Loopring/relay-cluster/ordermanager/manager"
 	"github.com/Loopring/relay-cluster/ordermanager/viewer"
 	"github.com/Loopring/relay-lib/broadcast"
@@ -36,8 +37,8 @@ import (
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
-	"time"
 	"strings"
+	"time"
 )
 
 type Gateway struct {
@@ -85,7 +86,7 @@ func Initialize(filterOptions *GatewayFiltersOptions, options *GateWayOptions, o
 	gateway.marketCap = marketCap
 
 	// new pow filter
-	powFilter := &PowFilter{Difficulty: types.HexToBigint(filterOptions.PowFilter.Difficulty)}
+	powFilter := &PowFilter{}
 
 	// new base filter
 	baseFilter := &BaseFilter{
@@ -400,7 +401,6 @@ func (f *CutoffFilter) filter(o *types.Order) (bool, error) {
 }
 
 type PowFilter struct {
-	Difficulty *big.Int
 }
 
 func (f *PowFilter) filter(o *types.Order) (bool, error) {
@@ -410,9 +410,11 @@ func (f *PowFilter) filter(o *types.Order) (bool, error) {
 	}
 
 	pow := GetPow(o.V, o.R, o.S, o.PowNonce)
-
-	if pow.Cmp(f.Difficulty) < 0 {
-		return false, fmt.Errorf("invalid pow")
+	if diffHex, err := order_difficulty.GetDifficulty(); nil == err {
+		diff := types.HexToBigint(diffHex)
+		if pow.Cmp(diff) < 0 {
+			return false, fmt.Errorf("invalid pow")
+		}
 	}
 	return true, nil
 }

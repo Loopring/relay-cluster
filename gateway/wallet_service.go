@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"github.com/Loopring/relay-cluster/accountmanager"
 	"github.com/Loopring/relay-cluster/dao"
+	"github.com/Loopring/relay-cluster/gateway/order_difficulty"
 	"github.com/Loopring/relay-cluster/market"
 	"github.com/Loopring/relay-cluster/ordermanager/manager"
 	"github.com/Loopring/relay-cluster/ordermanager/viewer"
@@ -411,6 +412,10 @@ type AddTokenReq struct {
 	Decimals             string `json:"decimals"`
 }
 
+type OrderDifficultyRes struct {
+	Difficulty string `json:"difficulty"`
+}
+
 type WalletServiceImpl struct {
 	trendManager    market.TrendManager
 	orderViewer     viewer.OrderViewer
@@ -544,6 +549,11 @@ func (w *WalletServiceImpl) GetPriceQuote(query PriceQuoteQuery) (result PriceQu
 	}
 
 	return rst, nil
+}
+
+func (w *WalletServiceImpl) GetOrderDifficulty() (result OrderDifficultyRes, err error) {
+	diff, err1 := order_difficulty.GetDifficulty()
+	return OrderDifficultyRes{Difficulty: diff}, err1
 }
 
 func (w *WalletServiceImpl) GetTickers(mkt SingleMarket) (result map[string]market.Ticker, err error) {

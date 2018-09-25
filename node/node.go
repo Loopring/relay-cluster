@@ -25,9 +25,11 @@ import (
 	"github.com/Loopring/relay-cluster/accountmanager"
 	"github.com/Loopring/relay-cluster/dao"
 	"github.com/Loopring/relay-cluster/gateway"
+	"github.com/Loopring/relay-cluster/gateway/order_difficulty"
 	"github.com/Loopring/relay-cluster/market"
 	ordermanager "github.com/Loopring/relay-cluster/ordermanager/manager"
 	orderviewer "github.com/Loopring/relay-cluster/ordermanager/viewer"
+	ringtrackerviewer "github.com/Loopring/relay-cluster/ringtrackermanager/viewer"
 	txmanager "github.com/Loopring/relay-cluster/txmanager/manager"
 	txviewer "github.com/Loopring/relay-cluster/txmanager/viewer"
 	"github.com/Loopring/relay-cluster/usermanager"
@@ -46,31 +48,30 @@ import (
 	"github.com/Loopring/relay-lib/zklock"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"go.uber.org/zap"
-	ringtrackerviewer "github.com/Loopring/relay-cluster/ringtrackermanager/viewer"
 )
 
 type Node struct {
 	globalConfig *GlobalConfig
 	rdsService   *dao.RdsService
 	//ipfsSubService    gateway.IPFSSubService
-	orderManager      ordermanager.OrderManager
-	orderViewer       orderviewer.OrderViewer
-	userManager       usermanager.UserManager
-	marketCapProvider marketcap.MarketCapProvider
-	accountManager    accountmanager.AccountManager
-	trendManager      market.TrendManager
-	tickerCollector   market.CollectorImpl
-	tickerManager     market.GetTickerImpl
-	globalMarket      market.GlobalMarket
-	jsonRpcService    gateway.JsonrpcServiceImpl
-	websocketService  gateway.WebsocketServiceImpl
-	socketIOService   gateway.SocketIOServiceImpl
-	walletService     gateway.WalletServiceImpl
-	txManager         txmanager.TransactionManager
-	motanService      *gateway.MotanService
-
-	wg     *sync.WaitGroup
-	logger *zap.Logger
+	orderManager             ordermanager.OrderManager
+	orderViewer              orderviewer.OrderViewer
+	userManager              usermanager.UserManager
+	marketCapProvider        marketcap.MarketCapProvider
+	accountManager           accountmanager.AccountManager
+	trendManager             market.TrendManager
+	tickerCollector          market.CollectorImpl
+	tickerManager            market.GetTickerImpl
+	globalMarket             market.GlobalMarket
+	jsonRpcService           gateway.JsonrpcServiceImpl
+	websocketService         gateway.WebsocketServiceImpl
+	socketIOService          gateway.SocketIOServiceImpl
+	walletService            gateway.WalletServiceImpl
+	txManager                txmanager.TransactionManager
+	motanService             *gateway.MotanService
+	orderDifficultyEvaluator *order_difficulty.OrderDifficultyEvaluator
+	wg                       *sync.WaitGroup
+	logger                   *zap.Logger
 
 	ringTrackerViewer  ringtrackerviewer.RingTrackerViewer
 	ringTrackerService gateway.RingTrackerServiceImpl
@@ -118,6 +119,7 @@ func NewNode(logger *zap.Logger, globalConfig *GlobalConfig) *Node {
 
 	n.registerRingTrackerViewer()
 	n.registerRingTrackerService()
+	n.registerOrderDifficultyEvaluator()
 	return n
 }
 
@@ -135,6 +137,7 @@ func (n *Node) Start() {
 	//n.websocketService.Start()
 	go n.socketIOService.Start()
 	gateway.StartMotanService(n.globalConfig.MotanServer, n.accountManager, n.orderViewer)
+	n.orderDifficultyEvaluator.Start()
 
 	n.wg.Add(1)
 }
@@ -266,6 +269,10 @@ func (n *Node) registerExtractor() {
 
 func (n *Node) registerCloudWatch() {
 	cloudwatch.Initialize(n.globalConfig.CloudWatch)
+}
+
+func (n *Node) registerOrderDifficultyEvaluator() {
+	n.orderDifficultyEvaluator = order_difficulty.NewOrderDifficultyEvaluator(n.globalConfig.OrderDifficulty)
 }
 
 func (n *Node) registerRingTrackerViewer() {
