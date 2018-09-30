@@ -36,8 +36,8 @@ import (
 	"github.com/Loopring/relay-lib/types"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
-	"time"
 	"strings"
+	"time"
 )
 
 type Gateway struct {
@@ -323,6 +323,15 @@ func (f *BaseFilter) filter(o *types.Order) (bool, error) {
 
 	if minAmount, ok := f.MinTokeSAmount[tokenS.Symbol]; ok && o.AmountS.Cmp(minAmount) < 0 {
 		return false, fmt.Errorf("tokenS amount is too small")
+	}
+
+	minTokenSValue, err := gateway.marketCap.LegalCurrencyValue(tokenS.Protocol, new(big.Rat).SetFrac(o.AmountS, big.NewInt(1)))
+	if err != nil {
+		return false, fmt.Errorf("gateway, base filter, get order amountS min currency value error:%s", err.Error())
+	}
+	usdAmount := new(big.Rat).SetFloat64(f.MinTokenSUsdAmount)
+	if minTokenSValue.Cmp(usdAmount) < 0 {
+		return false, fmt.Errorf("gateway, base filter, order amountS min currency value invalid")
 	}
 
 	// USD min amount check
