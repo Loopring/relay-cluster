@@ -49,7 +49,7 @@ log.flush.scheduler.interval.ms=300
 log.flush.start.offset.checkpoint.interval.ms=2000
 log.retention.hours=168
 #修改为3台zookeeper节点的内网ip，多个节点间使用逗号分隔
-zookeeper.connect=xx.xx.xx.xx:2181,xx.xx.xx.xx:2181,xx.xx.xx.xx:2181
+zookeeper.connect=x.x.x.x:2181,x.x.x.x:2181,x.x.x.x:2181
 default.replication.factor=3
 ```
 #### 启停
@@ -159,7 +159,7 @@ zookeeper.connect=x.x.x.x:2181
 default.replication.factor=3
 ```
 
-若采用免费aws实例，由于内存不足，启动后会立即exit，并在日志报错“Cannot allocate memory”，进行如下修改即可
+若采用免费aws实例做测试，由于内存不足，启动后会立即exit，并在日志报错“Cannot allocate memory”，进行如下修改即可
 
 `sudo vim /opt/loopring/kafka_2.12-0.11.0.2/bin/kafka-server-start.sh`
 
@@ -174,7 +174,7 @@ nohup /opt/loopring/kafka_2.12-0.11.0.2/bin/kafka-server-start.sh /opt/loopring/
 nohup /opt/loopring/kafka_2.12-0.11.0.2/bin/kafka-server-start.sh /opt/loopring/kafka_2.12-0.11.0.2/config/server.properties3 &
 ```
 
-###### 确认服务正常启动
+* ###### 确认服务正常启动
 ```
 tail -f /opt/loopring/kafka_2.12-0.11.0.2/nohup.out
 telnet 本实列内网ip 9092
@@ -186,5 +186,5 @@ telnet 本实列内网ip 9092
 /opt/loopring/kafka_2.12-0.11.0.2/bin/kafka-server-stop.sh /opt/loopring/kafka_2.12-0.11.0.2/config/server.properties2
 /opt/loopring/kafka_2.12-0.11.0.2/bin/kafka-server-stop.sh /opt/loopring/kafka_2.12-0.11.0.2/config/server.properties3
 ```
-##### 日志
+#### 日志
 `/opt/loopring/kafka_2.12-0.11.0.2/logs`

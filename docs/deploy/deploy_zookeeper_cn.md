@@ -42,12 +42,12 @@ cp zoo_sample.cfg zoo.cfg
 
 ```
 dataDir=/opt/loopring/data/zookeeper
-server.1=xx.xx.xx.xx:2888:3888
-server.2=xx.xx.xx.xx:2888:3888
-server.3=xx.xx.xx.xx:2888:3888
+server.1=x.x.x.x:2888:3888
+server.2=x.x.x.x:2888:3888
+server.3=x.x.x.x:2888:3888
 ```
 
-初始化myid，这里"n"在3台服务器的取值依次为1，2，3，和上面zoo.conf一致，每台服务器仅执行一次自身对应取值的命令
+初始化myid，这里"n"在三台服务器的取值依次为1，2，3与上面zoo.cfg对应，每台服务器仅执行一次自身对应取值的命令
 
 `echo "n" > /opt/loopring/data/zookeeper/myid`
 
@@ -147,7 +147,7 @@ echo "3" > /opt/loopring/data/zookeeper3/myid
 /opt/loopring/zookeeper-3.4.10/bin/zkServer.sh start /opt/loopring/zookeeper-3.4.10/conf/zoo2.cfg
 /opt/loopring/zookeeper-3.4.10/bin/zkServer.sh start /opt/loopring/zookeeper-3.4.10/conf/zoo3.cfg
 ```
-###### 确认服务正常启动
+* ###### 确认服务正常启动
 ```
 tail -f /opt/loopring/zookeeper-3.4.10/zookeeper.out
 telnet localhost 2181
@@ -159,6 +159,6 @@ telnet localhost 2181
 /opt/loopring/zookeeper-3.4.10/bin/zkServer.sh stop /opt/loopring/zookeeper-3.4.10/conf/zoo2.cfg
 /opt/loopring/zookeeper-3.4.10/bin/zkServer.sh stop /opt/loopring/zookeeper-3.4.10/conf/zoo3.cfg
 ```
-##### 日志
+#### 日志
 
 `/opt/loopring/zookeeper-3.4.10/zookeeper.out`

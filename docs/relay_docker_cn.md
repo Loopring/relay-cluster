@@ -1,8 +1,18 @@
-# Loopring relay-cluster Docker 中文文档
+# Loopring Relay Docker部署文档
 
-loopring开发团队提供loopring/relay-cluster,最新版本是v1.5.0。<br>
+为方便合作伙伴部署分布式中继，我们将提供以下几个镜像(除relay-cluster外，其余镜像正在制作中)：
 
-## 部署
+* relay-cluster镜像
+* miner镜像
+* extractor镜像
+* zookeeper&kafka
+* mysql & redis 请自行下载官方镜像
+
+各个微服务和中间件的配置文件，都需要独立于镜像配置，官方会及时更新配置文件说明，增加自解释，这部分工作会和docker化一起完成，然后提供给合作伙伴使用，尽请期待！
+
+目前官方提供relay-cluster镜像，最新版本：v1.5.0
+
+## 部署relay-cluster
 * 获取docker镜像
 ```bash
 docker pull loopring/relay-cluster
